@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wicked Works Storefront</title>
+    <script>
+      (function() {
+        const theme = localStorage.getItem('theme') || 'dark';
+        const root = document.documentElement;
+        root.classList.remove('light', 'dark');
+        if (theme === 'system') {
+          const systemIsDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          root.classList.add(systemIsDark ? 'dark' : 'light');
+        } else {
+          root.classList.add(theme);
+        }
+      })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "msw": "https://esm.sh/msw@^2.12.7",
+    "@storybook/react-vite": "https://esm.sh/@storybook/react-vite@^10.1.11",
+    "@storybook/react": "https://esm.sh/@storybook/react@^10.1.11"
+  }
+}
+</script>
+</head>
+  <body class="overflow-x-hidden bg-bg-primary">
+    <div id="root"></div>
+    <!-- CRITICAL: Added script to render index.tsx -->
+    <script type="module" src="index.tsx"></script>
+  </body>
+</html>

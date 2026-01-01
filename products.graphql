@@ -1,0 +1,79 @@
+#graphql
+query GetProducts(
+  $first: Int!
+  $sortKey: ProductSortKeys
+  $reverse: Boolean
+  $query: String
+) {
+  products(
+    first: $first
+    sortKey: $sortKey
+    reverse: $reverse
+    query: $query
+  ) {
+    edges {
+      node {
+        id
+        title
+        handle
+        description
+        vendor
+        tags
+        priceRange {
+          minVariantPrice {
+            amount
+            currencyCode
+          }
+          maxVariantPrice {
+            amount
+            currencyCode
+          }
+        }
+        featuredImage {
+          id
+          url
+          altText
+          width
+          height
+        }
+        images(first: 10) {
+          edges {
+            node {
+              id
+              url
+              altText
+              width
+              height
+            }
+          }
+        }
+        variants(first: 10) {
+          edges {
+            node {
+              id
+              title
+              availableForSale
+              price {
+                amount
+                currencyCode
+              }
+              selectedOptions {
+                name
+                value
+              }
+            }
+          }
+        }
+        options {
+          id
+          name
+          values
+        }
+      }
+    }
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+    }
+  }
+}

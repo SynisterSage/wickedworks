@@ -1,0 +1,122 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Wicked Works UI System - Global Stylesheet */
+
+:root {
+  --bg-primary: #fdfdfd;
+  --bg-secondary: #f4f4f5; /* Light mode grey - Zinc 100 equivalent */
+  --bg-tertiary: #ebebeb;  /* Recessed industrial grey */
+  --bg-surface: #ffffff;   /* Pure white inputs/raised */
+  --text-primary: #0a0a0a;
+  --text-secondary: #555555;
+  --neon-red: #ff003c;
+  --neon-glow: rgba(255, 0, 60, 0.5);
+  --border-color: rgba(0, 0, 0, 0.08);
+  
+  --bg-contrast-alpha-01: rgba(0, 0, 0, 0.01);
+  --bg-contrast-alpha-02: rgba(0, 0, 0, 0.02);
+  --bg-contrast-alpha-05: rgba(0, 0, 0, 0.05);
+  --grid-line-color: rgba(0, 0, 0, 0.02);
+}
+
+.dark {
+  /* REFINED: Industrial Charcoal Separation to avoid "Straight Black" */
+  --bg-primary: #0a0a0a;    /* Absolute Base Background */
+  --bg-secondary: #141414;  /* Main Panel Charcoal - The Prototype Color */
+  --bg-tertiary: #0f0f0f;   /* Recessed Areas (Tabs/Footers) */
+  --bg-surface: #1f1f1f;    /* Raised Surfaces (Inputs/Active Layers) */
+  
+  --text-primary: #ffffff;
+  --text-secondary: #888888;
+  
+  /* Precision Borders */
+  --border-color: #222222; 
+  
+  --neon-glow: rgba(255, 0, 60, 0.35);
+  --neon-glow-strong: rgba(255, 0, 60, 0.6);
+
+  --bg-contrast-alpha-01: rgba(255, 255, 255, 0.01);
+  --bg-contrast-alpha-02: rgba(255, 255, 255, 0.02);
+  --bg-contrast-alpha-05: rgba(255, 255, 255, 0.04);
+  --grid-line-color: #121212;
+}
+
+/* Base resets for inputs to ensure they respect theme tokens in dark mode */
+input, select, textarea {
+  background-color: var(--bg-surface) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color);
+}
+
+.dark input, .dark select, .dark textarea {
+  background-color: var(--bg-surface) !important;
+  color: #ffffff !important;
+}
+
+* {
+  transition-property: background-color, border-color, color, text-decoration-color, fill, stroke, box-shadow, transform;
+  transition-duration: 300ms;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Structural Enforcement - KEEP THESE */
+.border, .border-t, .border-b, .border-l, .border-r {
+  border-color: var(--border-color);
+}
+
+::selection {
+  background-color: #ff003c;
+  color: #ffffff;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  font-family: 'Inter', sans-serif;
+}
+
+input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px var(--bg-surface) inset !important;
+  -webkit-text-fill-color: var(--text-primary) !important;
+}
+
+.tech-grid {
+  background-size: 60px 60px;
+  background-image: 
+    linear-gradient(to right, var(--grid-line-color) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line-color) 1px, transparent 1px);
+}
+
+.glass {
+  background-color: rgba(20, 20, 20, 0.85);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border: 1px solid var(--border-color);
+}
+
+.neon-text-shadow {
+  text-shadow: 0 0 15px var(--neon-glow);
+}
+
+.shadow-neon {
+  box-shadow: 0 0 30px -10px var(--neon-glow);
+}
+
+.shadow-neon-strong {
+  box-shadow: 0 0 45px -5px var(--neon-glow);
+}
+
+.custom-scrollbar::-webkit-scrollbar { width: 3px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: var(--border-color); }
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #ff003c; }
+
+@keyframes width-pulse {
+  0%, 100% { width: 2rem; }
+  50% { width: 4.5rem; }
+}
+.animate-width-pulse { animation: width-pulse 2s cubic-bezier(0.16, 1, 0.3, 1) infinite; }

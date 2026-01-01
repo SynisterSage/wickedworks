@@ -1,0 +1,24 @@
+#graphql
+query SearchProducts($query: String!, $first: Int!) {
+  search(query: $query, first: $first, types: PRODUCT) {
+    edges {
+      node {
+        ... on Product {
+          id
+          title
+          handle
+          priceRange {
+            minVariantPrice {
+              amount
+              currencyCode
+            }
+          }
+          featuredImage {
+            url
+            altText
+          }
+        }
+      }
+    }
+  }
+}

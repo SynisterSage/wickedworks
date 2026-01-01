@@ -1,0 +1,39 @@
+#graphql
+query GetCollections($first: Int!) {
+  collections(first: $first) {
+    edges {
+      node {
+        id
+        title
+        handle
+        description
+        image {
+          id
+          url
+          altText
+          width
+          height
+        }
+        products(first: 10) {
+          edges {
+            node {
+              id
+              title
+              handle
+              priceRange {
+                minVariantPrice {
+                  amount
+                  currencyCode
+                }
+              }
+              featuredImage {
+                url
+                altText
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
