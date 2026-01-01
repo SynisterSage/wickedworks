@@ -41,7 +41,6 @@ const ArchivesPageContainer: React.FC = () => {
     <ArchivesPageView 
       upcoming={upcoming}
       vaulted={vaulted}
-      onViewProduct={handleViewProduct}
       onNotify={handleNotify}
     />
   );

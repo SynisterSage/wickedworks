@@ -153,7 +153,7 @@ export default function Footer({ onNavigate }: FooterProps) {
             <p className="text-[9px] text-white/10 uppercase tracking-[0.4em] font-mono">
               © 2025 WICKED_WORKS_LTD // SECURED_NODE
             </p>
-            <div className="flex items-center gap-6 text-[8px] font-mono text-white/5 uppercase tracking-[0.3em] hidden lg:flex">
+            <div className="hidden lg:flex lg:items-center lg:gap-6 text-[8px] font-mono text-white/5 uppercase tracking-[0.3em]">
               <span className="flex items-center gap-2">
                 <span className="w-1 h-1 rounded-full bg-neonRed/40 animate-pulse"></span> 
                 STABLE_UPLINK

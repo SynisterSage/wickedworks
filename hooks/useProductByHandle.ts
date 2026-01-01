@@ -1,8 +1,12 @@
 
 import { useState, useEffect, useMemo } from 'react';
-import { Product, Variant } from '../types';
-import { shopifyClient } from '../lib/shopifyClient';
+import { Product } from '../types';
+import { MOCK_PRODUCTS } from '../constants';
 import { mapProductFromGraphQL } from '../adapters/shopifyAdapter';
+import { shopifyFetch } from '../lib/shopify/client';
+import { PRODUCT_BY_HANDLE_QUERY } from '../lib/shopify/queries';
+
+const USE_MOCKS = import.meta.env.VITE_USE_MOCKS === 'true';
 
 export function useProductByHandle(handle: string | null) {
   const [data, setData] = useState<Product | null>(null);
@@ -12,19 +16,50 @@ export function useProductByHandle(handle: string | null) {
 
   useEffect(() => {
     if (!handle) return;
-    setLoading(true);
-    shopifyClient.fetchProductByHandle(handle)
-      .then(res => {
-        if (res.data.product) {
-          const mapped = mapProductFromGraphQL(res.data.product);
-          setData(mapped);
-          setSelectedVariantGid(mapped.variants[0]?.gid || null);
+
+    async function fetchProduct() {
+      try {
+        setLoading(true);
+        setError(null);
+
+        if (USE_MOCKS) {
+          // Use mock data
+          const mockProduct = MOCK_PRODUCTS.find(p => p.handle === handle);
+          if (mockProduct) {
+            const mapped = mapProductFromGraphQL(mockProduct);
+            setData(mapped);
+            setSelectedVariantGid(mapped.variants[0]?.gid || null);
+          } else {
+            setError('Product not found');
+          }
         } else {
-          setError('Product not found');
+          // Fetch from Shopify
+          const response = await shopifyFetch<{ product: any }>({
+            query: PRODUCT_BY_HANDLE_QUERY,
+            variables: { handle },
+          });
+
+          if (response.errors) {
+            throw new Error(response.errors[0]?.message || 'Failed to fetch product');
+          }
+
+          if (response.data?.product) {
+            const mapped = mapProductFromGraphQL(response.data.product);
+            setData(mapped);
+            setSelectedVariantGid(mapped.variants[0]?.gid || null);
+          } else {
+            setError('Product not found');
+          }
         }
-      })
-      .catch(err => setError(err.message))
-      .finally(() => setLoading(false));
+      } catch (err) {
+        console.error('[useProductByHandle] Error:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load product');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchProduct();
   }, [handle]);
 
   const selectedVariant = useMemo(() => 

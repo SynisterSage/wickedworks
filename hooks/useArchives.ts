@@ -1,8 +1,12 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { Product } from '../types';
-import { shopifyClient } from '../lib/shopifyClient';
+import { MOCK_PRODUCTS } from '../constants';
 import { mapProductFromGraphQL } from '../adapters/shopifyAdapter';
+import { shopifyFetch, extractNodes } from '../lib/shopify/client';
+import { PRODUCTS_QUERY } from '../lib/shopify/queries';
+
+const USE_MOCKS = import.meta.env.VITE_USE_MOCKS === 'true';
 
 /**
  * useArchives Hook
@@ -16,15 +20,43 @@ export function useArchives() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setLoading(true);
-    shopifyClient.fetchAllProducts(50)
-      .then(res => {
-        const nodes = res.data.products?.nodes || [];
-        const mapped = nodes.map(mapProductFromGraphQL);
-        setProducts(mapped);
-      })
-      .catch(err => setError(err.message))
-      .finally(() => setLoading(false));
+    async function fetchArchives() {
+      try {
+        setLoading(true);
+
+        if (USE_MOCKS) {
+          // Use mock data
+          const mapped = MOCK_PRODUCTS.map(mapProductFromGraphQL);
+          setProducts(mapped);
+        } else {
+          // Fetch from Shopify
+          const response = await shopifyFetch<{ products: { edges: Array<{ node: any }> } }>({
+            query: PRODUCTS_QUERY,
+            variables: {
+              first: 50,
+              sortKey: 'CREATED_AT',
+              reverse: true,
+            },
+          });
+
+          if (response.errors) {
+            throw new Error(response.errors[0]?.message || 'Failed to fetch products');
+          }
+
+          const nodes = extractNodes(response.data?.products);
+          setProducts(nodes.map(mapProductFromGraphQL));
+        }
+      } catch (err) {
+        console.error('[useArchives] Error:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load archives');
+        // Fallback to mocks on error
+        setProducts(MOCK_PRODUCTS.map(mapProductFromGraphQL));
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchArchives();
   }, []);
 
   const upcoming = useMemo(() => products.filter(p => p.isUpcoming), [products]);

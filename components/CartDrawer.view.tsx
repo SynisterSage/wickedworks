@@ -155,10 +155,13 @@ export const CartDrawerView: React.FC<CartDrawerViewProps> = ({
               </div>
               
               <div className="flex flex-col gap-4">
-                  <button onClick={() => navigate(ROUTES.CART)} className="w-full bg-neonRed text-white py-6 font-black uppercase tracking-[0.4em] textxs shadow-neon hover:shadow-neon-strong transition-all duration-300 relative group overflow-hidden active:scale-95 italic">
+                  <a 
+                    href={checkoutUrl} 
+                    className="w-full bg-neonRed text-white py-6 font-black uppercase tracking-[0.4em] text-xs shadow-neon hover:shadow-neon-strong transition-all duration-300 relative group overflow-hidden active:scale-95 italic text-center block"
+                  >
                     <span className="relative z-10">Authorize Deployment</span>
                     <div className="absolute top-0 left-[-100%] w-1/2 h-full bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-[-25deg] group-hover:left-[150%] transition-all duration-[1200ms]" />
-                  </button>
+                  </a>
                   <button onClick={() => navigate(ROUTES.CART)} className="w-full bg-bg-surface text-text-secondary py-4 font-black uppercase tracking-[0.3em] text-[10px] border border-border-color hover:border-text-primary/20 hover:text-text-primary transition-colors italic">
                     Edit Payload
                   </button>

@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ROUTES } from '../utils/routeHelpers';
 
 const TermsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -41,7 +42,7 @@ const TermsPage: React.FC = () => {
         {/* Breadcrumbs */}
         <nav className="flex items-center gap-3 mb-12 border-b border-black/5 dark:border-white/5 pb-4">
           <button 
-            onClick={() => onNavigate('HOME')}
+            onClick={() => navigate(ROUTES.HOME)}
             className="text-[10px] font-bold text-charcoal/40 dark:text-white/30 uppercase tracking-widest hover:text-neonRed transition-colors"
           >
             Home

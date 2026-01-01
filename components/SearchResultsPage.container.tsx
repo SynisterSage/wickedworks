@@ -5,7 +5,10 @@ import { SearchResultsPageView } from './SearchResultsPage.view';
 import { MOCK_PRODUCTS, Icons } from '../constants';
 import { Product } from '../types';
 import { mapProductFromGraphQL } from '../adapters/shopifyAdapter';
+import { shopifyFetch, extractNodes } from '../lib/shopify/client';
+import { SEARCH_PRODUCTS_QUERY } from '../lib/shopify/queries';
 
+const USE_MOCKS = import.meta.env.VITE_USE_MOCKS === 'true';
 const CATEGORIES = ['Outerwear', 'Footwear', 'Apparel', 'Accessories'];
 const SIZES = ['S', 'M', 'L', 'XL', '8', '9', '10', '11', '30', '32', '34', 'OS'];
 const COLORS = ['Onyx', 'Neon Red', 'Slate'];
@@ -25,6 +28,8 @@ const SearchResultsPageContainer: React.FC<SearchResultsPageContainerProps> = ({
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [localQuery, setLocalQuery] = useState(query || '');
+  const [searchResults, setSearchResults] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (query !== localQuery) {
@@ -32,17 +37,61 @@ const SearchResultsPageContainer: React.FC<SearchResultsPageContainerProps> = ({
     }
   }, [query]);
 
-  const searchResults = useMemo(() => {
-    const trimmedQuery = localQuery.trim().toLowerCase();
-    if (!trimmedQuery) return [];
-    return MOCK_PRODUCTS
-      .filter(p => 
-        p.title.toLowerCase().includes(trimmedQuery) || 
-        p.productType?.toLowerCase().includes(trimmedQuery) ||
-        p.handle.toLowerCase().includes(trimmedQuery)
-      )
-      .map(mapProductFromGraphQL);
-  }, [localQuery]);
+  // Fetch search results when query changes
+  useEffect(() => {
+    const trimmedQuery = query.trim();
+    if (!trimmedQuery) {
+      setSearchResults([]);
+      return;
+    }
+
+    async function fetchSearchResults() {
+      try {
+        setLoading(true);
+
+        if (USE_MOCKS) {
+          // Use mock data
+          const filtered = MOCK_PRODUCTS
+            .filter(p => 
+              p.title.toLowerCase().includes(trimmedQuery.toLowerCase()) || 
+              p.productType?.toLowerCase().includes(trimmedQuery.toLowerCase()) ||
+              p.handle.toLowerCase().includes(trimmedQuery.toLowerCase())
+            )
+            .map(mapProductFromGraphQL);
+          setSearchResults(filtered);
+        } else {
+          // Search Shopify
+          const response = await shopifyFetch<{ products: { edges: Array<{ node: any }> } }>({
+            query: SEARCH_PRODUCTS_QUERY,
+            variables: {
+              query: trimmedQuery,
+              first: 50,
+            },
+          });
+
+          if (response.data?.products) {
+            const nodes = extractNodes(response.data.products);
+            setSearchResults(nodes.map(mapProductFromGraphQL));
+          }
+        }
+      } catch (err) {
+        console.error('[SearchResultsPage] Search error:', err);
+        // Fallback to mock data
+        const filtered = MOCK_PRODUCTS
+          .filter(p => 
+            p.title.toLowerCase().includes(trimmedQuery.toLowerCase()) || 
+            p.productType?.toLowerCase().includes(trimmedQuery.toLowerCase()) ||
+            p.handle.toLowerCase().includes(trimmedQuery.toLowerCase())
+          )
+          .map(mapProductFromGraphQL);
+        setSearchResults(filtered);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchSearchResults();
+  }, [query]);
 
   const filteredProducts = useMemo(() => {
     return searchResults.filter(product => {

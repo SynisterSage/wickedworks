@@ -94,6 +94,7 @@ const ProductDetailPageContainer: React.FC<ProductDetailPageContainerProps> = ({
       onAddToCart={(variant) => onAddToCart(variant, data)}
       isSaved={isSaved}
       onToggleSave={() => onToggleSave(handle)}
+      context={null}
     />
   );
 };

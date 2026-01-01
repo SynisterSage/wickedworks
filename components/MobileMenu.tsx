@@ -75,12 +75,10 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
                         <div className="flex items-center justify-between py-6">
                           <button 
                             onClick={() => {
-                              const route = item.view === 'HOME' ? ROUTES.HOME : 
-                                            item.view === 'SHOP_ALL' ? ROUTES.SHOP :
-                                            item.view === 'COLLECTIONS' ? ROUTES.COLLECTIONS :
-                                            item.view === 'ARCHIVES' ? ROUTES.ARCHIVES : ROUTES.HOME;
-                              navigate(route);
-                              onClose();
+                              if (item.path) {
+                                navigate(item.path);
+                                onClose();
+                              }
                             }}
                             className="text-4xl md:text-5xl font-black uppercase tracking-tighter text-charcoal dark:text-white hover:text-neonRed transition-all bg-transparent border-none p-0 outline-none text-left"
                           >
