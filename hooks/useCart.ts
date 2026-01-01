@@ -89,6 +89,38 @@ export function useCart() {
     }
   }, [cartId]);
 
+  // Create Shopify cart if items exist but no cartId (on page reload)
+  useEffect(() => {
+    if (!USE_MOCKS && cartItems.length > 0 && !cartId && !isLoading) {
+      const createCartFromExisting = async () => {
+        try {
+          setIsLoading(true);
+          const lines = cartItems.map((item) => ({
+            merchandiseId: item.variantGid,
+            quantity: item.quantity,
+          }));
+
+          const response = await shopifyFetch<any>({
+            query: CART_CREATE_MUTATION,
+            variables: { input: { lines } },
+          });
+
+          const result = response.data?.cartCreate;
+          if (result?.cart) {
+            setCartId(result.cart.id);
+            setCheckoutUrl(result.cart.checkoutUrl);
+          }
+        } catch (err) {
+          console.error('[useCart] Failed to recreate cart:', err);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      createCartFromExisting();
+    }
+  }, [cartItems, cartId, isLoading]);
+
   // Map Shopify cart response to local cart items
   const mapShopifyCartToItems = (cart: ShopifyCart): CartItem[] => {
     return extractNodes(cart.lines).map((line) => ({
@@ -295,7 +327,7 @@ export function useCart() {
     addToCart,
     removeFromCart,
     updateQuantity,
-    checkoutUrl: checkoutUrl || '/checkout',
+    checkoutUrl: checkoutUrl || '',
     isLoading,
   };
 }

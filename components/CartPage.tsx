@@ -125,9 +125,23 @@ export const CartPage: React.FC<CartPageProps> = ({ cartItems, totalAmount, onRe
                     <p className="text-sm font-black uppercase tracking-widest text-text-primary italic">Total</p>
                     <p className="text-3xl font-black text-neonRed tracking-tighter">${finalTotal.toFixed(2)}</p>
                   </div>
-                  <a href={checkoutUrl} className="!mt-10 block w-full text-center bg-neonRed text-white py-6 font-black uppercase tracking-[0.4em] text-xs shadow-neon hover:shadow-neon-strong transition-all active:scale-95 italic">
-                    Proceed to Secure Checkout
-                  </a>
+                  {checkoutUrl ? (
+                    <a 
+                      href={checkoutUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="!mt-10 block w-full text-center bg-neonRed text-white py-6 font-black uppercase tracking-[0.4em] text-xs shadow-neon hover:shadow-neon-strong transition-all active:scale-95 italic"
+                    >
+                      Proceed to Secure Checkout
+                    </a>
+                  ) : (
+                    <button 
+                      disabled
+                      className="!mt-10 block w-full text-center bg-text-secondary/20 text-text-secondary/40 py-6 font-black uppercase tracking-[0.4em] text-xs italic cursor-not-allowed"
+                    >
+                      Processing Checkout...
+                    </button>
+                  )}
                   <button onClick={() => navigate(ROUTES.SHOP)} className="w-full text-center text-text-secondary py-3 text-[10px] font-black uppercase tracking-widest hover:text-text-primary transition-colors italic">
                     Continue Shopping
                   </button>
