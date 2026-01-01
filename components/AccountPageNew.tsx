@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { fetchCustomerOrders, fetchCustomerAddresses, ShopifyOrder, ShopifyAddress, getStoredTokens } from '../lib/auth';
+import { fetchCustomerOrders, fetchCustomerAddresses, createCustomerAddress, updateCustomerAddress, deleteCustomerAddress, setDefaultCustomerAddress, ShopifyOrder, ShopifyAddress, getStoredTokens } from '../lib/auth';
 
 type TabType = 'orders' | 'addresses' | 'profile';
 
@@ -165,7 +165,7 @@ const AddressCard: React.FC<AddressCardProps> = ({ address, isDefault, onEdit, o
             </div>
             <div>
               <span className="font-bold block mb-1">Phone</span>
-              <span>{address.phone || 'N/A'}</span>
+              <span>{address.phoneNumber || 'N/A'}</span>
             </div>
             <div className="sm:col-span-2">
               <span className="font-bold block mb-1">Address</span>
@@ -217,8 +217,8 @@ const AddressCard: React.FC<AddressCardProps> = ({ address, isDefault, onEdit, o
 
       {/* Delete Confirmation Modal */}
       {showConfirm && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-bg-surface border border-border-color max-w-sm w-full p-6 sm:p-8 space-y-6">
+        <div className="fixed inset-0 bg-white/40 dark:bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-bg-secondary border border-border-color max-w-sm w-full p-6 sm:p-8 space-y-6">
             <div>
               <h3 className="text-sm font-black text-text-primary uppercase tracking-widest mb-2">Delete Address?</h3>
               <p className="text-[10px] text-text-secondary">This action cannot be undone.</p>
@@ -266,7 +266,7 @@ const AddressForm: React.FC<AddressFormProps> = ({ address, onClose, onSave, isS
       province: '',
       zip: '',
       country: '',
-      phone: '',
+      phoneNumber: '',
     }
   );
 
@@ -281,8 +281,8 @@ const AddressForm: React.FC<AddressFormProps> = ({ address, onClose, onSave, isS
   };
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-bg-surface border border-border-color max-w-md w-full p-6 sm:p-8 space-y-6 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-white/40 dark:bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-bg-secondary border border-border-color max-w-md w-full p-6 sm:p-8 space-y-6 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-1.5 h-4 bg-neonRed shadow-neon"></div>
@@ -419,8 +419,8 @@ const AddressForm: React.FC<AddressFormProps> = ({ address, onClose, onSave, isS
             </label>
             <input 
               type="tel" 
-              name="phone"
-              value={formData.phone || ''}
+              name="phoneNumber"
+              value={formData.phoneNumber || ''}
               onChange={handleChange}
               className="w-full bg-bg-primary border border-border-color px-3 py-2 text-xs text-text-primary focus:outline-none focus:border-neonRed/30 transition-all uppercase tracking-wider"
             />
@@ -585,80 +585,77 @@ export default function AccountPage() {
         </div>
 
         {/* Account Tabs */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-8 sm:mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-6 sm:mb-12">
           {/* Orders Tab */}
           <div 
             onClick={() => setActiveTab('orders')}
-            className={`cursor-pointer transition-all duration-300 p-5 sm:p-6 border-2 ${
+            className={`cursor-pointer transition-all duration-300 p-3 sm:p-6 border-2 ${
               activeTab === 'orders' 
                 ? 'bg-bg-secondary border-neonRed shadow-neon scale-[1.02]' 
-                : 'bg-bg-surface border-border-color hover:border-neonRed/50 hover:bg-bg-secondary/50'
+                : 'bg-bg-surface border-border-color dark:border-border-color hover:border-neonRed/50 hover:bg-bg-secondary/50'
             } group relative overflow-hidden`}
           >
-            {/* Active indicator line */}
-            <div className={`absolute bottom-0 left-0 h-1 bg-gradient-to-r from-neonRed to-transparent transition-all duration-300 ${activeTab === 'orders' ? 'w-full' : 'w-0'}`}></div>
+            {/* Left accent bar - always visible */}
+            <div className={`absolute left-0 top-0 bottom-0 w-1.5 transition-all duration-300 ${activeTab === 'orders' ? 'bg-neonRed shadow-neon' : 'bg-text-secondary/30 dark:bg-text-secondary/40'}`}></div>
             
-            <div className="flex items-center gap-3 mb-3">
-              <div className={`w-1.5 h-4 shadow-neon transition-all duration-300 ${activeTab === 'orders' ? 'bg-neonRed' : 'bg-text-secondary/40'}`}></div>
-              <h3 className={`text-xs sm:text-sm font-black uppercase tracking-widest italic transition-colors duration-300 ${activeTab === 'orders' ? 'text-neonRed' : 'text-text-secondary group-hover:text-text-primary'}`}>
+            <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3 pl-2">
+              <h3 className={`text-[11px] sm:text-sm font-black uppercase tracking-widest italic transition-colors duration-300 ${activeTab === 'orders' ? 'text-neonRed' : 'text-text-secondary group-hover:text-text-primary'}`}>
                 Orders
               </h3>
             </div>
-            <p className={`text-[9px] sm:text-[10px] leading-relaxed mb-3 transition-colors duration-300 ${activeTab === 'orders' ? 'text-text-secondary' : 'text-text-secondary/60'}`}>
+            <p className={`text-[8px] sm:text-[10px] leading-tight sm:leading-relaxed mb-2 sm:mb-3 pl-2 transition-colors duration-300 hidden sm:block ${activeTab === 'orders' ? 'text-text-secondary' : 'text-text-secondary/60'}`}>
               View your order history and track shipments
             </p>
-            <div className={`text-2xl sm:text-3xl font-black mb-1 transition-colors duration-300 ${activeTab === 'orders' ? 'text-neonRed' : 'text-text-secondary/50'}`}>
+            <div className={`text-lg sm:text-3xl font-black mb-0.5 sm:mb-1 pl-2 transition-colors duration-300 ${activeTab === 'orders' ? 'text-neonRed' : 'text-text-secondary/50'}`}>
               {orders.length}
             </div>
-            <p className="text-[8px] sm:text-[9px] text-text-secondary/50 uppercase tracking-wider font-bold">Total Orders</p>
+            <p className="text-[7px] sm:text-[9px] text-text-secondary/50 uppercase tracking-wider font-bold pl-2">Orders</p>
           </div>
 
           {/* Addresses Tab */}
           <div 
             onClick={() => setActiveTab('addresses')}
-            className={`cursor-pointer transition-all duration-300 p-5 sm:p-6 border-2 ${
+            className={`cursor-pointer transition-all duration-300 p-3 sm:p-6 border-2 ${
               activeTab === 'addresses' 
                 ? 'bg-bg-secondary border-neonRed shadow-neon scale-[1.02]' 
-                : 'bg-bg-surface border-border-color hover:border-neonRed/50 hover:bg-bg-secondary/50'
+                : 'bg-bg-surface border-border-color dark:border-border-color hover:border-neonRed/50 hover:bg-bg-secondary/50'
             } group relative overflow-hidden`}
           >
-            {/* Active indicator line */}
-            <div className={`absolute bottom-0 left-0 h-1 bg-gradient-to-r from-neonRed to-transparent transition-all duration-300 ${activeTab === 'addresses' ? 'w-full' : 'w-0'}`}></div>
+            {/* Left accent bar - always visible */}
+            <div className={`absolute left-0 top-0 bottom-0 w-1.5 transition-all duration-300 ${activeTab === 'addresses' ? 'bg-neonRed shadow-neon' : 'bg-text-secondary/30 dark:bg-text-secondary/40'}`}></div>
             
-            <div className="flex items-center gap-3 mb-3">
-              <div className={`w-1.5 h-4 shadow-neon transition-all duration-300 ${activeTab === 'addresses' ? 'bg-neonRed' : 'bg-text-secondary/40'}`}></div>
-              <h3 className={`text-xs sm:text-sm font-black uppercase tracking-widest italic transition-colors duration-300 ${activeTab === 'addresses' ? 'text-neonRed' : 'text-text-secondary group-hover:text-text-primary'}`}>
+            <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3 pl-2">
+              <h3 className={`text-[11px] sm:text-sm font-black uppercase tracking-widest italic transition-colors duration-300 ${activeTab === 'addresses' ? 'text-neonRed' : 'text-text-secondary group-hover:text-text-primary'}`}>
                 Addresses
               </h3>
             </div>
-            <p className={`text-[9px] sm:text-[10px] leading-relaxed mb-3 transition-colors duration-300 ${activeTab === 'addresses' ? 'text-text-secondary' : 'text-text-secondary/60'}`}>
+            <p className={`text-[8px] sm:text-[10px] leading-tight sm:leading-relaxed mb-2 sm:mb-3 pl-2 transition-colors duration-300 hidden sm:block ${activeTab === 'addresses' ? 'text-text-secondary' : 'text-text-secondary/60'}`}>
               Manage your shipping and billing addresses
             </p>
-            <div className={`text-2xl sm:text-3xl font-black mb-1 transition-colors duration-300 ${activeTab === 'addresses' ? 'text-neonRed' : 'text-text-secondary/50'}`}>
+            <div className={`text-lg sm:text-3xl font-black mb-0.5 sm:mb-1 pl-2 transition-colors duration-300 ${activeTab === 'addresses' ? 'text-neonRed' : 'text-text-secondary/50'}`}>
               {addresses.length}
             </div>
-            <p className="text-[8px] sm:text-[9px] text-text-secondary/50 uppercase tracking-wider font-bold">Saved Addresses</p>
+            <p className="text-[7px] sm:text-[9px] text-text-secondary/50 uppercase tracking-wider font-bold pl-2">Addresses</p>
           </div>
 
           {/* Profile Tab */}
           <div 
             onClick={() => setActiveTab('profile')}
-            className={`cursor-pointer transition-all duration-300 p-5 sm:p-6 border-2 ${
+            className={`cursor-pointer transition-all duration-300 p-3 sm:p-6 border-2 ${
               activeTab === 'profile' 
                 ? 'bg-bg-secondary border-neonRed shadow-neon scale-[1.02]' 
-                : 'bg-bg-surface border-border-color hover:border-neonRed/50 hover:bg-bg-secondary/50'
+                : 'bg-bg-surface border-border-color dark:border-border-color hover:border-neonRed/50 hover:bg-bg-secondary/50'
             } group relative overflow-hidden`}
           >
-            {/* Active indicator line */}
-            <div className={`absolute bottom-0 left-0 h-1 bg-gradient-to-r from-neonRed to-transparent transition-all duration-300 ${activeTab === 'profile' ? 'w-full' : 'w-0'}`}></div>
+            {/* Left accent bar - always visible */}
+            <div className={`absolute left-0 top-0 bottom-0 w-1.5 transition-all duration-300 ${activeTab === 'profile' ? 'bg-neonRed shadow-neon' : 'bg-text-secondary/30 dark:bg-text-secondary/40'}`}></div>
             
-            <div className="flex items-center gap-3 mb-3">
-              <div className={`w-1.5 h-4 shadow-neon transition-all duration-300 ${activeTab === 'profile' ? 'bg-neonRed' : 'bg-text-secondary/40'}`}></div>
-              <h3 className={`text-xs sm:text-sm font-black uppercase tracking-widest italic transition-colors duration-300 ${activeTab === 'profile' ? 'text-neonRed' : 'text-text-secondary group-hover:text-text-primary'}`}>
+            <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3 pl-2">
+              <h3 className={`text-[11px] sm:text-sm font-black uppercase tracking-widest italic transition-colors duration-300 ${activeTab === 'profile' ? 'text-neonRed' : 'text-text-secondary group-hover:text-text-primary'}`}>
                 Profile
               </h3>
             </div>
-            <p className={`text-[9px] sm:text-[10px] leading-relaxed mb-3 transition-colors duration-300 ${activeTab === 'profile' ? 'text-text-secondary' : 'text-text-secondary/60'}`}>
+            <p className={`text-[8px] sm:text-[10px] leading-tight sm:leading-relaxed mb-2 sm:mb-3 pl-2 transition-colors duration-300 hidden sm:block ${activeTab === 'profile' ? 'text-text-secondary' : 'text-text-secondary/60'}`}>
               Update your account information
             </p>
             <button 
@@ -667,17 +664,17 @@ export default function AccountPage() {
                 setActiveTab('profile');
                 setShowEditProfile(true);
               }}
-              className={`text-[9px] sm:text-[10px] font-bold uppercase tracking-widest transition-colors duration-300 ${activeTab === 'profile' ? 'text-neonRed hover:text-neonRed/80' : 'text-text-secondary/50 group-hover:text-neonRed'}`}
+              className={`text-[7px] sm:text-[10px] font-bold uppercase tracking-widest transition-colors duration-300 pl-2 ${activeTab === 'profile' ? 'text-neonRed hover:text-neonRed/80' : 'text-text-secondary/50 group-hover:text-neonRed'}`}
             >
-              Edit Profile →
+              Edit →
             </button>
           </div>
         </div>
 
         {/* Edit Profile Modal */}
         {showEditProfile && (
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-bg-surface border border-border-color max-w-md w-full p-6 sm:p-8 space-y-6">
+          <div className="fixed inset-0 bg-white/40 dark:bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-bg-secondary border border-border-color max-w-md w-full p-6 sm:p-8 space-y-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-1.5 h-4 bg-neonRed shadow-neon"></div>
@@ -763,12 +760,29 @@ export default function AccountPage() {
             onSave={async (formData) => {
               setSavingAddress(true);
               try {
-                // TODO: Implement address save API call
-                alert('Address save functionality coming soon!');
+                const tokens = getStoredTokens();
+                if (!tokens?.accessToken) {
+                  alert('Authentication required. Please sign in again.');
+                  return;
+                }
+
+                if (editingAddress?.id) {
+                  // Update existing address
+                  await updateCustomerAddress(tokens.accessToken, editingAddress.id, formData);
+                } else {
+                  // Create new address
+                  await createCustomerAddress(tokens.accessToken, formData);
+                }
+
+                // Refresh addresses list
+                const customerAddresses = await fetchCustomerAddresses(tokens.accessToken);
+                setAddresses(customerAddresses);
+
                 setShowAddressForm(false);
                 setEditingAddress(undefined);
               } catch (error) {
                 console.error('Failed to save address:', error);
+                alert(`Error: ${error instanceof Error ? error.message : 'Failed to save address'}`);
               } finally {
                 setSavingAddress(false);
               }
@@ -779,8 +793,8 @@ export default function AccountPage() {
 
         {/* Edit Profile Modal - Old Version (keeping for reference) */}
         {false && (
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-bg-surface border border-border-color max-w-md w-full p-6 sm:p-8 space-y-6">
+          <div className="fixed inset-0 bg-white/40 dark:bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-bg-secondary border border-border-color max-w-md w-full p-6 sm:p-8 space-y-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-1.5 h-4 bg-neonRed shadow-neon"></div>
@@ -928,18 +942,34 @@ export default function AccountPage() {
                     <AddressCard 
                       key={address.id} 
                       address={address}
-                      isDefault={address.isDefault}
+                      isDefault={address.isDefault || false}
                       onEdit={(addr) => {
                         setEditingAddress(addr);
                         setShowAddressForm(true);
                       }}
-                      onDelete={() => {
-                        // TODO: Implement delete
-                        alert('Delete coming soon');
+                      onDelete={async (addressId) => {
+                        try {
+                          const tokens = getStoredTokens();
+                          if (!tokens?.accessToken) return;
+                          await deleteCustomerAddress(tokens.accessToken, addressId);
+                          const customerAddresses = await fetchCustomerAddresses(tokens.accessToken);
+                          setAddresses(customerAddresses);
+                        } catch (error) {
+                          console.error('Failed to delete address:', error);
+                          alert('Failed to delete address');
+                        }
                       }}
-                      onSetDefault={() => {
-                        // TODO: Implement set default
-                        alert('Set default coming soon');
+                      onSetDefault={async (addressId) => {
+                        try {
+                          const tokens = getStoredTokens();
+                          if (!tokens?.accessToken) return;
+                          await setDefaultCustomerAddress(tokens.accessToken, addressId);
+                          const customerAddresses = await fetchCustomerAddresses(tokens.accessToken);
+                          setAddresses(customerAddresses);
+                        } catch (error) {
+                          console.error('Failed to set default address:', error);
+                          alert('Failed to set default address');
+                        }
                       }}
                     />
                   ))}
@@ -1009,10 +1039,10 @@ export default function AccountPage() {
         </div>
 
         {/* Logout Button */}
-        <div className="mt-8 flex justify-center">
+        <div className="mt-8">
           <button
             onClick={logout}
-            className="bg-bg-surface border border-border-color hover:border-neonRed/50 text-text-secondary hover:text-text-primary font-bold uppercase tracking-widest text-xs py-3 px-6 sm:px-8 transition-all"
+            className="w-full bg-bg-surface border border-border-color hover:border-neonRed/50 text-text-secondary hover:text-text-primary font-bold uppercase tracking-widest text-xs py-3 px-6 sm:px-8 transition-all"
           >
             Sign Out
           </button>

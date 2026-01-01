@@ -89,8 +89,8 @@ export interface ShopifyAddress {
   province: string;
   zip: string;
   country: string;
-  phone?: string;
-  isDefault: boolean;
+  phoneNumber?: string;
+  isDefault?: boolean;
 }
 
 // Redirect to Shopify login
@@ -291,9 +291,11 @@ export async function fetchCustomerAddresses(accessToken: string): Promise<Shopi
             province
             zip
             country
-            phone
-            isDefault
+            phoneNumber
           }
+        }
+        defaultAddress {
+          id
         }
       }
     }
@@ -321,7 +323,232 @@ export async function fetchCustomerAddresses(accessToken: string): Promise<Shopi
     return []; // Return empty array instead of throwing
   }
 
-  return result.data.customer.addresses.nodes;
+  const defaultAddressId = result.data.customer.defaultAddress?.id;
+  return result.data.customer.addresses.nodes.map((address: any) => ({
+    ...address,
+    isDefault: address.id === defaultAddressId,
+  }));
+}
+
+// Create a new address
+export async function createCustomerAddress(accessToken: string, address: Partial<ShopifyAddress>): Promise<ShopifyAddress> {
+  const mutation = `
+    mutation CreateAddress($address: CustomerAddressInput!) {
+      customerAddressCreate(address: $address) {
+        customerAddress {
+          id
+          firstName
+          lastName
+          address1
+          address2
+          city
+          province
+          zip
+          country
+          phoneNumber
+        }
+        userErrors {
+          field
+          message
+        }
+      }
+    }
+  `;
+
+  const variables = {
+    address: {
+      firstName: address.firstName,
+      lastName: address.lastName,
+      address1: address.address1,
+      address2: address.address2,
+      city: address.city,
+      province: address.province,
+      zip: address.zip,
+      country: address.country,
+      phoneNumber: address.phoneNumber,
+    },
+  };
+
+  const response = await fetch(CUSTOMER_API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': accessToken,
+    },
+    body: JSON.stringify({ query: mutation, variables }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('Create address error:', errorText);
+    throw new Error(`Failed to create address: ${response.status}`);
+  }
+
+  const result = await response.json();
+  
+  if (result.errors) {
+    console.error('GraphQL errors:', result.errors);
+    throw new Error(`GraphQL error: ${JSON.stringify(result.errors)}`);
+  }
+
+  if (result.data.customerAddressCreate.userErrors?.length > 0) {
+    throw new Error(result.data.customerAddressCreate.userErrors[0].message);
+  }
+
+  return result.data.customerAddressCreate.customerAddress;
+}
+
+// Update an address
+export async function updateCustomerAddress(accessToken: string, addressId: string, address: Partial<ShopifyAddress>): Promise<ShopifyAddress> {
+  const mutation = `
+    mutation UpdateAddress($id: ID!, $address: CustomerAddressInput!) {
+      customerAddressUpdate(id: $id, address: $address) {
+        customerAddress {
+          id
+          firstName
+          lastName
+          address1
+          address2
+          city
+          province
+          zip
+          country
+          phoneNumber
+        }
+        userErrors {
+          field
+          message
+        }
+      }
+    }
+  `;
+
+  const variables = {
+    id: addressId,
+    address: {
+      firstName: address.firstName,
+      lastName: address.lastName,
+      address1: address.address1,
+      address2: address.address2,
+      city: address.city,
+      province: address.province,
+      zip: address.zip,
+      country: address.country,
+      phoneNumber: address.phoneNumber,
+    },
+  };
+
+  const response = await fetch(CUSTOMER_API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': accessToken,
+    },
+    body: JSON.stringify({ query: mutation, variables }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('Update address error:', errorText);
+    throw new Error(`Failed to update address: ${response.status}`);
+  }
+
+  const result = await response.json();
+  
+  if (result.errors) {
+    console.error('GraphQL errors:', result.errors);
+    throw new Error(`GraphQL error: ${JSON.stringify(result.errors)}`);
+  }
+
+  if (result.data.customerAddressUpdate.userErrors?.length > 0) {
+    throw new Error(result.data.customerAddressUpdate.userErrors[0].message);
+  }
+
+  return result.data.customerAddressUpdate.customerAddress;
+}
+
+// Delete an address
+export async function deleteCustomerAddress(accessToken: string, addressId: string): Promise<void> {
+  const mutation = `
+    mutation DeleteAddress($id: ID!) {
+      customerAddressDelete(id: $id) {
+        userErrors {
+          field
+          message
+        }
+      }
+    }
+  `;
+
+  const variables = { id: addressId };
+
+  const response = await fetch(CUSTOMER_API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': accessToken,
+    },
+    body: JSON.stringify({ query: mutation, variables }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('Delete address error:', errorText);
+    throw new Error(`Failed to delete address: ${response.status}`);
+  }
+
+  const result = await response.json();
+  
+  if (result.errors) {
+    console.error('GraphQL errors:', result.errors);
+    throw new Error(`GraphQL error: ${JSON.stringify(result.errors)}`);
+  }
+
+  if (result.data.customerAddressDelete.userErrors?.length > 0) {
+    throw new Error(result.data.customerAddressDelete.userErrors[0].message);
+  }
+}
+
+// Set default address
+export async function setDefaultCustomerAddress(accessToken: string, addressId: string): Promise<void> {
+  const mutation = `
+    mutation SetDefaultAddress($addressId: ID!) {
+      customerDefaultAddressUpdate(addressId: $addressId) {
+        userErrors {
+          field
+          message
+        }
+      }
+    }
+  `;
+
+  const variables = { addressId };
+
+  const response = await fetch(CUSTOMER_API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': accessToken,
+    },
+    body: JSON.stringify({ query: mutation, variables }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('Set default address error:', errorText);
+    throw new Error(`Failed to set default address: ${response.status}`);
+  }
+
+  const result = await response.json();
+  
+  if (result.errors) {
+    console.error('GraphQL errors:', result.errors);
+    throw new Error(`GraphQL error: ${JSON.stringify(result.errors)}`);
+  }
+
+  if (result.data.customerDefaultAddressUpdate.userErrors?.length > 0) {
+    throw new Error(result.data.customerDefaultAddressUpdate.userErrors[0].message);
+  }
 }
 
 // Logout
