@@ -362,9 +362,9 @@ export async function createCustomerAddress(accessToken: string, address: Partia
       address1: address.address1,
       address2: address.address2,
       city: address.city,
-      province: address.province,
+      provinceCode: address.province,
       zip: address.zip,
-      country: address.country,
+      countryCode: address.country,
       phoneNumber: address.phoneNumber,
     },
   };
@@ -431,9 +431,9 @@ export async function updateCustomerAddress(accessToken: string, addressId: stri
       address1: address.address1,
       address2: address.address2,
       city: address.city,
-      province: address.province,
+      provinceCode: address.province,
       zip: address.zip,
-      country: address.country,
+      countryCode: address.country,
       phoneNumber: address.phoneNumber,
     },
   };
