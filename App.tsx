@@ -248,12 +248,8 @@ const App: React.FC = () => {
           draggable
           pauseOnHover
           theme="auto" // auto switches light/dark based on document
-          toastClassName={({ theme }) => `rounded-none border ${theme === 'light'
-            ? 'bg-white/100 text-black border-black/10 shadow-[0_12px_30px_-12px_rgba(0,0,0,0.35)]'
-            : 'bg-neutral-900 text-white border-white/10 shadow-[0_12px_30px_-12px_rgba(0,0,0,0.45)]'
-          }`}
-          bodyClassName="text-sm font-medium"
-          progressClassName={({ theme }) => theme === 'light' ? 'bg-black/40' : 'bg-white/60'}
+          toastClassName="rounded-none border text-sm font-medium !bg-white !text-black !border-black/10 shadow-[0_12px_30px_-12px_rgba(0,0,0,0.35)] dark:!bg-neutral-900 dark:!text-white dark:!border-white/10 dark:shadow-[0_12px_30px_-12px_rgba(0,0,0,0.45)]"
+          progressClassName="!bg-black/40 dark:!bg-white/60"
         />
       </div>
     </div>
