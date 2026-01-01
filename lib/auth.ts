@@ -356,11 +356,10 @@ export async function createCustomerAddress(accessToken: string, address: Partia
       firstName: address.firstName,
       lastName: address.lastName,
       address1: address.address1,
-      address2: address.address2 || undefined,
       city: address.city,
       zip: address.zip,
-      phoneNumber: address.phoneNumber || undefined,
-      country: address.country || 'US',
+      ...(address.address2 && { address2: address.address2 }),
+      ...(address.phoneNumber && { phoneNumber: address.phoneNumber }),
     },
   };
 
@@ -424,11 +423,10 @@ export async function updateCustomerAddress(accessToken: string, addressId: stri
       firstName: address.firstName,
       lastName: address.lastName,
       address1: address.address1,
-      address2: address.address2 || undefined,
       city: address.city,
       zip: address.zip,
-      phoneNumber: address.phoneNumber || undefined,
-      country: address.country || 'US',
+      ...(address.address2 && { address2: address.address2 }),
+      ...(address.phoneNumber && { phoneNumber: address.phoneNumber }),
     },
   };
 

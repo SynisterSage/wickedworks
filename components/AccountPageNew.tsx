@@ -453,14 +453,13 @@ const AddressForm: React.FC<AddressFormProps> = ({ address, onClose, onSave, isS
             </div>
             <div className="space-y-2">
               <label className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] text-text-secondary italic">
-                State/Province
+                State/Province (Optional)
               </label>
               <input 
                 type="text" 
                 name="province"
                 value={formData.province || ''}
                 onChange={handleChange}
-                required
                 className="w-full bg-bg-primary border border-border-color px-3 py-2 text-xs text-text-primary focus:outline-none focus:border-neonRed/30 transition-all uppercase tracking-wider"
               />
             </div>
@@ -482,14 +481,13 @@ const AddressForm: React.FC<AddressFormProps> = ({ address, onClose, onSave, isS
             </div>
             <div className="space-y-2">
               <label className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] text-text-secondary italic">
-                Country
+                Country (Optional)
               </label>
               <input 
                 type="text" 
                 name="country"
                 value={formData.country || ''}
                 onChange={handleChange}
-                required
                 className="w-full bg-bg-primary border border-border-color px-3 py-2 text-xs text-text-primary focus:outline-none focus:border-neonRed/30 transition-all uppercase tracking-wider"
               />
             </div>
