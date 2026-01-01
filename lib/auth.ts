@@ -7,6 +7,10 @@ const LOGOUT_URL = import.meta.env.VITE_CUSTOMER_ACCOUNT_LOGOUT_URL;
 const APP_URL = import.meta.env.VITE_APP_URL;
 const REDIRECT_URI = `${APP_URL}/auth/callback`;
 
+// Extract store ID from auth URL (e.g., "73608003721" from auth URL)
+const STORE_ID = AUTH_URL.split('/')[4];
+const CUSTOMER_API_URL = `https://shopify.com/${STORE_ID}/account/customer/api/unstable/graphql.json`;
+
 // Generate random string for state parameter (CSRF protection)
 function generateRandomString(length: number): string {
   const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -135,7 +139,7 @@ export async function fetchCustomer(accessToken: string): Promise<Customer> {
     }
   `;
 
-  const response = await fetch(`https://shopify.com/73608003721/account/customer/api/2024-10/graphql.json`, {
+  const response = await fetch(CUSTOMER_API_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
