@@ -6,28 +6,28 @@ const PrivacyPage: React.FC = () => {
   const navigate = useNavigate();
   const sections = [
     {
-      title: "Data Collection",
-      content: "When you visit Wicked Works, we collect certain information about your device, your interaction with the site, and information necessary to process your purchases. We may also collect additional information if you contact us for customer support. This includes personal identifiers such as name, billing address, shipping address, payment information, and email address."
+      title: "What We Collect",
+      content: "We collect identifiers (name, email, addresses), order and payment details (via Shopify’s checkout), device data (IP, browser, analytics), and account data you choose to provide. Newsletter signups and notification preferences are stored in Supabase."
     },
     {
-      title: "How We Use Your Data",
-      content: "We use your personal information to provide our services to you, which includes: offering products for sale, processing payments, shipping and fulfillment of your order, and keeping you up to date on new products, services, and offers."
+      title: "How We Use It",
+      content: "To process and ship orders, provide customer support, remember your preferences, send transactional emails, and (when you opt in) marketing updates and product notifications. We minimize retention and keep only what’s needed for these purposes."
     },
     {
-      title: "Sharing Personal Information",
-      content: "We share your Personal Information with service providers to help us provide our services and fulfill our contracts with you. For example, we use Shopify to power our online store. You can read more about how Shopify uses your Personal Information here: https://www.shopify.com/legal/privacy."
+      title: "Platforms & Sharing",
+      content: "Commerce runs on Shopify; see https://www.shopify.com/legal/privacy. Data we store (subscriptions, notification prefs) lives in Supabase (U.S./EU hosting). Email is sent via Resend. We do not sell your data. Vendors only receive what they need to perform their service."
+    },
+    {
+      title: "Cookies & Tracking",
+      content: "We use essential cookies for security/session, preference cookies (e.g., theme), and performance/analytics. You can control cookies in your browser; blocking some may impact site function."
     },
     {
       title: "Your Rights",
-      content: "Depending on your location, you may have rights regarding your personal information, such as the right to access, correct, or delete the data we hold about you. You may also have the right to object to certain processing activities."
+      content: "Depending on where you live (e.g., GDPR/UK GDPR, CCPA/CPRA, other local laws), you may access, correct, delete, or port your data, and opt out of marketing. To exercise rights or request deletion, contact us via the support portal."
     },
     {
-      title: "Cookie Policy",
-      content: "A cookie is a small amount of information that’s downloaded to your computer or device when you visit our Site. We use a number of different cookies, including functional, performance, advertising, and social media or content cookies. Cookies make your browsing experience better by allowing the website to remember your actions and preferences (such as login and region selection)."
-    },
-    {
-      title: "Cookie Management",
-      content: "Most browsers automatically accept cookies, but you can choose whether or not to accept cookies through your browser controls, often found in your browser’s “Tools” or “Preferences” menu. For more information on how to modify your browser settings or how to block, manage or filter cookies can be found in your browser’s help file."
+      title: "Data Security & Retention",
+      content: "We use TLS in transit and vendor security defaults at rest. We retain order records to meet legal/tax requirements; marketing preferences are kept until you opt out or request deletion."
     }
   ];
 
@@ -53,7 +53,7 @@ const PrivacyPage: React.FC = () => {
             <h1 className="text-4xl md:text-7xl font-black uppercase tracking-tighter text-text-primary mb-6 italic leading-none">
               Privacy <span className="text-neonRed">& Cookies.</span>
             </h1>
-            <p className="text-[10px] font-bold text-text-secondary uppercase tracking-[0.3em]">Last Updated: April 2025</p>
+            <p className="text-[10px] font-bold text-text-secondary uppercase tracking-[0.3em]">Last Updated: January 2026</p>
           </header>
 
           <div className="grid grid-cols-1 md:grid-cols-12 gap-12">

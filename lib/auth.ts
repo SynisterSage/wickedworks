@@ -243,6 +243,37 @@ export async function exchangeCodeForToken(code: string, state: string): Promise
   };
 }
 
+// Refresh access token using a refresh token
+export async function refreshAccessToken(refreshToken: string): Promise<AuthTokens> {
+  const body = new URLSearchParams({
+    grant_type: 'refresh_token',
+    refresh_token: refreshToken,
+    client_id: CLIENT_ID,
+  });
+
+  const response = await fetch(TOKEN_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: body.toString(),
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`Token refresh failed: ${error}`);
+  }
+
+  const data = await response.json();
+
+  return {
+    accessToken: data.access_token,
+    refreshToken: data.refresh_token || refreshToken,
+    expiresAt: data.expires_in ? Date.now() + data.expires_in * 1000 : undefined,
+    idToken: data.id_token,
+  };
+}
+
 // Get customer data from Shopify
 export async function fetchCustomer(accessToken: string): Promise<Customer> {
   const query = `
@@ -707,10 +738,19 @@ export async function setDefaultCustomerAddress(accessToken: string, addressId: 
 }
 
 // Logout
-export function logout(): void {
+export function logout(options?: { redirect?: boolean; returnTo?: string }): void {
   localStorage.removeItem('auth_tokens');
   localStorage.removeItem('customer');
-  window.location.href = `${LOGOUT_URL}?id_token_hint=${localStorage.getItem('id_token')}`;
+  const redirect = options?.redirect ?? true;
+  if (!redirect) {
+    return;
+  }
+  const returnTo = options?.returnTo || `${APP_URL}/account`;
+  const idToken = localStorage.getItem('id_token');
+  const params = new URLSearchParams();
+  if (idToken) params.set('id_token_hint', idToken);
+  if (returnTo) params.set('return_to', returnTo);
+  window.location.href = `${LOGOUT_URL}?${params.toString()}`;
 }
 
 // Store tokens in localStorage

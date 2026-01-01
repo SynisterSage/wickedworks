@@ -8,6 +8,7 @@ import {
   fetchCustomer,
   initiateLogin as authInitiateLogin,
   logout as authLogout,
+  refreshAccessToken,
 } from '../lib/auth';
 import { handleError, notifySuccess } from '../lib/toast';
 
@@ -37,15 +38,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return;
         }
 
-        // Check if tokens are expired
-        if (isTokenExpired(storedTokens)) {
+        // Refresh if expired or close to expiring
+        const needsRefresh = storedTokens.expiresAt ? Date.now() >= storedTokens.expiresAt - 60000 : false;
+        let activeTokens = storedTokens;
+
+        if (needsRefresh && storedTokens.refreshToken) {
+          try {
+            const refreshed = await refreshAccessToken(storedTokens.refreshToken);
+            activeTokens = refreshed;
+            storeTokens(refreshed);
+          } catch (err) {
+            console.error('[AuthContext] Refresh failed, clearing session', err);
+            localStorage.removeItem('auth_tokens');
+            localStorage.removeItem('customer');
+            setIsLoading(false);
+            return;
+          }
+        } else if (isTokenExpired(storedTokens)) {
           localStorage.removeItem('auth_tokens');
           localStorage.removeItem('customer');
           setIsLoading(false);
           return;
         }
 
-        setTokens(storedTokens);
+        setTokens(activeTokens);
 
         // Try to load customer from localStorage first
         const storedCustomer = localStorage.getItem('customer');
@@ -53,7 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setCustomer(JSON.parse(storedCustomer));
         } else {
           // Fetch from API if not in localStorage
-          const customerData = await fetchCustomer(storedTokens.accessToken);
+          const customerData = await fetchCustomer(activeTokens.accessToken);
           setCustomer(customerData);
           localStorage.setItem('customer', JSON.stringify(customerData));
         }
@@ -76,7 +92,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = () => {
     setCustomer(null);
     setTokens(null);
-    authLogout();
+    authLogout({ redirect: false });
     notifySuccess('Logged out successfully');
   };
 
@@ -84,7 +100,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!tokens) return;
 
     try {
-      const customerData = await fetchCustomer(tokens.accessToken);
+      let activeTokens = tokens;
+
+      // If token expired but refresh token exists, refresh first
+      if (isTokenExpired(tokens) && tokens.refreshToken) {
+        const refreshed = await refreshAccessToken(tokens.refreshToken);
+        activeTokens = refreshed;
+        setTokens(refreshed);
+        storeTokens(refreshed);
+      }
+
+      const customerData = await fetchCustomer(activeTokens.accessToken);
       setCustomer(customerData);
       localStorage.setItem('customer', JSON.stringify(customerData));
     } catch (error) {

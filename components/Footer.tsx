@@ -158,7 +158,7 @@ export default function Footer({ onNavigate }: FooterProps) {
         <div className="pt-12 border-t border-white/[0.02] flex flex-col md:flex-row justify-between items-center gap-10">
           <div className="flex flex-col md:flex-row items-center gap-8 md:gap-16">
             <p className="text-[9px] text-white/10 uppercase tracking-[0.4em] font-mono">
-              © 2025 WICKED_WORKS_LTD // SECURED_NODE
+              © 2026 WICKED_WORKS_LTD // SECURED_NODE
             </p>
             <div className="hidden lg:flex lg:items-center lg:gap-6 text-[8px] font-mono text-white/5 uppercase tracking-[0.3em]">
               <span className="flex items-center gap-2">

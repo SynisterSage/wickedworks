@@ -7,32 +7,36 @@ const TermsPage: React.FC = () => {
   const navigate = useNavigate();
   const sections = [
     {
-      title: "Introduction",
-      content: "These Terms & Conditions govern your use of the Wicked Works website and the purchase of any products from us. By using this website, you agree to follow and be bound by these terms. We reserve the right to update these terms at any time without prior notice."
+      title: "Scope & Updates",
+      content: "These Terms govern your use of Wicked Works and purchases made through our Shopify-powered store. We may update terms as laws or services change; continued use means acceptance of the current terms."
     },
     {
-      title: "Product Information & Availability",
-      content: "We make every effort to display the colors and features of our products accurately. However, actual colors may vary depending on your monitor settings. All products are subject to availability, and we reserve the right to limit the quantity of products we supply or to discontinue any product at any time."
+      title: "Commerce Platform",
+      content: "Checkout, payments, and order management run on Shopify. Your use of checkout is also subject to Shopify’s terms and privacy: https://www.shopify.com/legal/terms and https://www.shopify.com/legal/privacy."
     },
     {
       title: "Orders & Payments",
-      content: "By placing an order, you are offering to purchase a product subject to these terms. All orders are subject to availability and confirmation of the order price. We accept major credit cards and other secure payment methods through our Shopify-integrated checkout. We reserve the right to refuse any order."
+      content: "Placing an order is an offer to buy. We may reject or cancel for fraud, errors, or availability. Prices and shipping costs are shown at checkout. Risk of loss passes to you when the carrier takes possession."
     },
     {
-      title: "Shipping & Delivery",
-      content: "Shipping times and costs are calculated at checkout. While we aim to meet estimated delivery dates, these are not guaranteed. Risk of loss and title for items purchased from us pass to you upon delivery of the items to the carrier."
+      title: "Product Info & Availability",
+      content: "We aim for accurate imagery and descriptions; color may vary by display. Inventory can change quickly; we may limit quantities or discontinue items."
     },
     {
-      title: "Returns & Exchanges",
-      content: "We offer a 30-day return policy for items in their original, unworn, and unwashed condition with all tags attached. Please visit our Returns page for specific instructions on how to initiate a return. Customers are responsible for return shipping costs unless the item is faulty."
+      title: "Returns",
+      content: "Eligible items can be returned within 30 days in original condition with tags. Faulty items are covered under applicable consumer laws. See Returns for workflow details."
+    },
+    {
+      title: "Privacy, Cookies & Supabase",
+      content: "See our Privacy & Cookies notice for how we process data, including use of Supabase for subscriptions/notification preferences and Resend for email. By using the site you consent to necessary cookies; optional cookies can be controlled in your browser."
     },
     {
       title: "Intellectual Property",
-      content: "All content on this website, including designs, text, graphics, logos, and images, is the property of Wicked Works or its content suppliers and is protected by international copyright laws. Unauthorized use of this content is strictly prohibited."
+      content: "All site content and designs are owned by Wicked Works or licensors. No reproduction or derivative use without written consent."
     },
     {
       title: "Limitation of Liability",
-      content: "Wicked Works shall not be liable for any special or consequential damages that result from the use of, or the inability to use, the materials on this site or the performance of the products, even if Wicked Works has been advised of the possibility of such damages."
+      content: "To the extent allowed by law, we are not liable for indirect or consequential damages. Nothing here limits rights you have under mandatory consumer law."
     }
   ];
 
@@ -58,7 +62,7 @@ const TermsPage: React.FC = () => {
             <h1 className="text-4xl md:text-7xl font-black uppercase tracking-tighter text-charcoal dark:text-white mb-6">
               Terms of <span className="text-neonRed">Service</span>
             </h1>
-            <p className="text-[10px] font-bold text-charcoal/40 dark:text-white/40 uppercase tracking-[0.3em]">Last Updated: April 2025</p>
+            <p className="text-[10px] font-bold text-charcoal/40 dark:text-white/40 uppercase tracking-[0.3em]">Last Updated: January 2026</p>
           </header>
 
           <div className="grid grid-cols-1 md:grid-cols-12 gap-12">

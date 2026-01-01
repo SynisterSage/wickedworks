@@ -51,16 +51,16 @@ export function useEmailSubscription() {
       setLoading(true);
       setError(null);
 
-      const { error: unsubscribeError } = await supabase
-        .from('email_subscriptions')
-        .update({
-          is_subscribed: false,
-          unsubscribed_at: new Date().toISOString(),
-        })
-        .eq('email', email.toLowerCase());
+      const normalized = email.toLowerCase();
 
-      if (unsubscribeError) {
-        throw unsubscribeError;
+      // Try hard-delete to honor opt-out
+      const { error: deleteError } = await supabase
+        .from('email_subscriptions')
+        .delete()
+        .eq('email', normalized);
+
+      if (deleteError) {
+        throw deleteError;
       }
 
       notifySuccess('You have been unsubscribed');

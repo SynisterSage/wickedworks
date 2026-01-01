@@ -8,10 +8,12 @@ interface FooterViewProps {
   setEmail: (email: string) => void;
   isSubscribed: boolean;
   onSubscribe: (e: React.FormEvent) => void;
+  onUnsubscribe?: () => void;
+  loading?: boolean;
 }
 
 export const FooterView: React.FC<FooterViewProps> = ({ 
-  email, setEmail, isSubscribed, onSubscribe 
+  email, setEmail, isSubscribed, onSubscribe, onUnsubscribe, loading 
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -119,7 +121,7 @@ export const FooterView: React.FC<FooterViewProps> = ({
               <div className="relative group/field">
                 <input 
                   type="email" 
-                  disabled={isSubscribed} 
+                  disabled={isSubscribed || loading} 
                   value={email} 
                   onChange={(e) => setEmail(e.target.value)} 
                   placeholder={isSubscribed ? 'ENCRYPTED_ID' : 'EMAIL@NETWORK.WW'} 
@@ -128,23 +130,33 @@ export const FooterView: React.FC<FooterViewProps> = ({
               </div>
               <button 
                 type="submit" 
-                disabled={isSubscribed} 
+                disabled={isSubscribed || loading} 
                 className={`w-full py-4 md:py-5 text-[10px] md:text-[11px] font-black uppercase tracking-[0.5em] transition-all relative overflow-hidden group/btn active:scale-[0.98] italic ${
                   isSubscribed 
                     ? 'bg-transparent border border-neonRed/40 text-neonRed shadow-neon' 
                     : 'bg-neonRed text-white hover:bg-neonRed shadow-neon hover:shadow-neon-strong'
                 }`}
               >
-                <span className="relative z-10">{isSubscribed ? 'UPLINK_SECURE' : 'Join the Archive'}</span>
+                <span className="relative z-10">{loading ? 'CONNECTING...' : isSubscribed ? 'UPLINK_SECURE' : 'Join the Archive'}</span>
                 {!isSubscribed && <div className="absolute top-0 left-[-100%] w-1/2 h-full bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-[-25deg] group-hover/btn:left-[150%] transition-all duration-[1200ms]"></div>}
               </button>
+              {isSubscribed && onUnsubscribe && (
+                <button
+                  type="button"
+                  onClick={onUnsubscribe}
+                  disabled={loading}
+                  className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] text-text-secondary/60 hover:text-neonRed transition-all underline-offset-4 underline"
+                >
+                  Opt out / remove
+                </button>
+              )}
             </form>
           </div>
         </div>
 
         <div className="pt-12 border-t border-border-color flex flex-col md:flex-row justify-between items-center gap-8">
           <p className="text-[9px] text-text-secondary/20 uppercase tracking-[0.4em] font-mono italic">
-            © 2025 WICKED_WORKS_ARCHIVE // SECURED_NODE
+            © 2026 WICKED_WORKS_ARCHIVE // SECURED_NODE
           </p>
           <ThemeSwitcher />
         </div>
