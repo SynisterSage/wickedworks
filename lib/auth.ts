@@ -66,6 +66,32 @@ const STATE_ABBREVIATIONS: Record<string, string> = {
   'District of Columbia': 'DC',
 };
 
+const COUNTRY_TERRITORY_CODES: Record<string, string> = {
+  'united states': 'US',
+  'united states of america': 'US',
+  'usa': 'US',
+  'us': 'US',
+  'canada': 'CA',
+  'ca': 'CA',
+};
+
+function toTerritoryCode(country?: string): string {
+  const cleaned = (country ?? '').trim();
+  if (!cleaned) return 'US';
+
+  if (/^\d{3}$/.test(cleaned)) return cleaned;
+  if (/^[A-Za-z]{2}$/.test(cleaned)) return cleaned.toUpperCase();
+  if (/^[A-Za-z]{3}$/.test(cleaned)) return cleaned.toUpperCase();
+
+  const normalized = cleaned.toLowerCase();
+  if (normalized in COUNTRY_TERRITORY_CODES) return COUNTRY_TERRITORY_CODES[normalized];
+  if (normalized.includes('united states')) return 'US';
+  if (normalized.includes('canada')) return 'CA';
+
+  // Default to US to avoid sending invalid values like "UNITED STATES".
+  return 'US';
+}
+
 // Generate random string for state parameter (CSRF protection)
 function generateRandomString(length: number): string {
   const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -406,6 +432,10 @@ export async function createCustomerAddress(accessToken: string, address: Partia
     }
   `;
 
+  const zoneCode = address.province
+    ? (STATE_ABBREVIATIONS[address.province] ?? address.province).toUpperCase()
+    : undefined;
+
   const variables = {
     address: {
       firstName: address.firstName,
@@ -413,7 +443,8 @@ export async function createCustomerAddress(accessToken: string, address: Partia
       address1: address.address1,
       city: address.city,
       zip: address.zip,
-      ...(address.province && { territoryCode: (STATE_ABBREVIATIONS[address.province] || address.province).toLowerCase() }),
+      territoryCode: toTerritoryCode(address.country),
+      ...(zoneCode && { zoneCode }),
       ...(address.address2 && { address2: address.address2 }),
       ...(address.phoneNumber && { phoneNumber: address.phoneNumber }),
     },
@@ -473,6 +504,10 @@ export async function updateCustomerAddress(accessToken: string, addressId: stri
     }
   `;
 
+  const zoneCode = address.province
+    ? (STATE_ABBREVIATIONS[address.province] ?? address.province).toUpperCase()
+    : undefined;
+
   const variables = {
     id: addressId,
     address: {
@@ -481,7 +516,8 @@ export async function updateCustomerAddress(accessToken: string, addressId: stri
       address1: address.address1,
       city: address.city,
       zip: address.zip,
-      ...(address.province && { territoryCode: (STATE_ABBREVIATIONS[address.province] || address.province).toLowerCase() }),
+      territoryCode: toTerritoryCode(address.country),
+      ...(zoneCode && { zoneCode }),
       ...(address.address2 && { address2: address.address2 }),
       ...(address.phoneNumber && { phoneNumber: address.phoneNumber }),
     },
