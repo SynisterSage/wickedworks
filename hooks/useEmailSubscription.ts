@@ -94,7 +94,7 @@ export function useEmailSubscription() {
       const { data, error: fetchError } = await supabase
         .from('email_subscriptions')
         .select('*')
-        .eq('email', normalized)
+        .ilike('email', normalized) // tolerate legacy casing
         .order('updated_at', { ascending: false })
         .limit(1);
 

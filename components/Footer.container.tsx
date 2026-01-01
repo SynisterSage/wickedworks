@@ -14,41 +14,44 @@ const FooterContainer: React.FC = () => {
   const { customer } = useAuth();
 
   useEffect(() => {
+    const normalizeEmail = (value?: string | null) => value?.trim().toLowerCase() || '';
+
     const restoreFromLocal = () => {
-      const saved = localStorage.getItem(STORAGE_KEY);
+      const saved = normalizeEmail(localStorage.getItem(STORAGE_KEY));
       if (saved) {
         setIsSubscribed(true);
         setEmail(saved);
       }
+      return saved;
     };
 
     const hydrateFromSupabase = async () => {
-      if (!customer?.email) {
-        restoreFromLocal();
-        return;
-      }
+      const authEmail = normalizeEmail(customer?.email);
+      const saved = restoreFromLocal();
+      const targetEmail = authEmail || saved;
 
-      const record = await fetchSubscription(customer.email);
+      if (!targetEmail) return;
+
+      const record = await fetchSubscription(targetEmail);
 
       if (record) {
-        setEmail(record.email || customer.email);
+        const recordEmail = normalizeEmail(record.email) || targetEmail;
+        setEmail(recordEmail);
 
         if (record.is_subscribed) {
           setIsSubscribed(true);
-          localStorage.setItem(STORAGE_KEY, (record.email || customer.email).toLowerCase());
+          localStorage.setItem(STORAGE_KEY, recordEmail);
         } else {
           setIsSubscribed(false);
           localStorage.removeItem(STORAGE_KEY);
         }
-
         return;
       }
 
-      // Prefill with customer email even if no record exists
-      setEmail(customer.email);
-
-      // If nothing exists server-side, fall back to any local storage entry
-      restoreFromLocal();
+      if (authEmail) {
+        // Prefill with customer email even if no record exists
+        setEmail(authEmail);
+      }
     };
 
     hydrateFromSupabase();
