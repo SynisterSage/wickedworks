@@ -52,6 +52,33 @@ export interface Customer {
   displayName: string;
 }
 
+export interface ShopifyOrder {
+  id: string;
+  name: string; // Order number like "#1001"
+  processedAt: string;
+  financialStatus: string;
+  fulfillmentStatus: string;
+  totalPrice: {
+    amount: string;
+    currencyCode: string;
+  };
+  lineItems: {
+    nodes: Array<{
+      title: string;
+      quantity: number;
+      variant: {
+        image?: {
+          url: string;
+        };
+        price: {
+          amount: string;
+          currencyCode: string;
+        };
+      };
+    }>;
+  };
+}
+
 // Redirect to Shopify login
 export async function initiateLogin(): Promise<void> {
   const state = generateRandomString(16);
@@ -170,6 +197,68 @@ export async function fetchCustomer(accessToken: string): Promise<Customer> {
     lastName: customer.lastName,
     displayName: customer.displayName,
   };
+}
+
+// Get customer orders from Shopify
+export async function fetchCustomerOrders(accessToken: string): Promise<ShopifyOrder[]> {
+  const query = `
+    query {
+      customer {
+        orders(first: 25, sortKey: PROCESSED_AT, reverse: true) {
+          nodes {
+            id
+            name
+            processedAt
+            financialStatus
+            fulfillmentStatus
+            totalPrice {
+              amount
+              currencyCode
+            }
+            lineItems(first: 10) {
+              nodes {
+                title
+                quantity
+                variant {
+                  image {
+                    url
+                  }
+                  price {
+                    amount
+                    currencyCode
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  `;
+
+  const response = await fetch(CUSTOMER_API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': accessToken,
+    },
+    body: JSON.stringify({ query }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('Orders API error:', errorText);
+    throw new Error(`Failed to fetch orders: ${response.status}`);
+  }
+
+  const result = await response.json();
+  
+  if (result.errors) {
+    console.error('GraphQL errors:', result.errors);
+    return []; // Return empty array instead of throwing
+  }
+
+  return result.data.customer.orders.nodes;
 }
 
 // Logout
