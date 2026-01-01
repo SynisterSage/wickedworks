@@ -80,6 +80,40 @@ export const BlogPageView: React.FC<BlogPageViewProps> = ({ posts, onViewPost })
   const featuredPost = posts[0];
   const otherPosts = posts.slice(1);
 
+   if (!posts || posts.length === 0) {
+    return (
+      <div className="pt-12 md:pt-32 pb-24 min-h-screen bg-bg-primary flex items-center">
+        <div className="container mx-auto px-6 md:px-12 lg:px-16 xl:px-20">
+          <div className="max-w-3xl mx-auto bg-bg-secondary border border-border-color shadow-2xl p-12 md:p-16 text-center">
+            <div className="flex justify-center mb-6">
+              <div className="w-12 h-12 rounded-full bg-neonRed/10 border border-neonRed/40 flex items-center justify-center text-neonRed">
+                <Icons.Bell />
+              </div>
+            </div>
+            <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter text-text-primary mb-4 italic">No Active Blogs</h2>
+            <p className="text-[11px] md:text-sm font-bold uppercase tracking-[0.25em] text-text-primary/40 mb-10 leading-relaxed">
+              THE DISPATCH FEED IS QUIET. CHECK BACK SOON FOR NEW SIGNALS FROM THE ARCHIVE.
+            </p>
+            <div className="flex flex-col sm:flex-row justify-center gap-4">
+              <button
+                onClick={() => navigate(ROUTES.HOME)}
+                className="px-8 py-4 bg-neonRed text-white font-black uppercase tracking-[0.35em] text-[10px] shadow-neon hover:shadow-neon-strong transition-all"
+              >
+                Return Home
+              </button>
+              <button
+                onClick={() => navigate(ROUTES.SHOP)}
+                className="px-8 py-4 bg-bg-primary text-text-primary font-black uppercase tracking-[0.35em] text-[10px] border border-border-color hover:border-neonRed/40 transition-all"
+              >
+                Browse Gear
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="pt-12 md:pt-32 pb-24 min-h-screen bg-bg-primary">
       <div className="container mx-auto px-6 md:px-12 lg:px-16 xl:px-20">
