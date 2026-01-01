@@ -106,11 +106,19 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ product, onAddToC
 
             <button 
               onClick={() => onAddToCart(selectedVariant)}
-              disabled={!selectedVariant.available}
-              className="w-full bg-neonRed text-white py-6 font-black uppercase tracking-[0.3em] text-xs shadow-neon hover:shadow-neon-strong transition-all active:scale-95 flex items-center justify-center gap-4 group overflow-hidden"
+              disabled={!selectedVariant.available || product.isUpcoming}
+              className={`w-full py-6 font-black uppercase tracking-[0.3em] text-xs transition-all active:scale-95 flex items-center justify-center gap-4 group overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed ${
+                product.isUpcoming 
+                  ? 'bg-amber-500 text-white shadow-[0_0_20px_rgba(245,158,11,0.5)]' 
+                  : 'bg-neonRed text-white shadow-neon hover:shadow-neon-strong'
+              }`}
             >
               <span className="relative z-10">
-                {selectedVariant.available ? 'Authorize Acquisition' : 'Out of Stock'}
+                {product.isUpcoming 
+                  ? 'Future Signal - Not Available' 
+                  : selectedVariant.available 
+                    ? 'Authorize Acquisition' 
+                    : 'Out of Stock'}
               </span>
               <Icons.ShoppingBag />
             </button>
