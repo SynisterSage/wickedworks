@@ -61,9 +61,10 @@ export const useCollections = () => {
         }
 
         if (response.data?.collections?.edges) {
-          const mappedCollections = response.data.collections.edges.map((edge: any) =>
-            mapCollectionFromGraphQL(edge)
-          );
+          const mappedCollections = response.data.collections.edges
+            .map((edge: any) => edge?.node)
+            .filter(Boolean)
+            .map((node: any) => mapCollectionFromGraphQL(node));
           setCollections(mappedCollections);
         }
       } catch (err) {
