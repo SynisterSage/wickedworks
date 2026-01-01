@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { fetchCustomerOrders, fetchCustomerAddresses, createCustomerAddress, updateCustomerAddress, updateCustomerProfile, deleteCustomerAddress, setDefaultCustomerAddress, ShopifyOrder, ShopifyAddress, getStoredTokens } from '../lib/auth';
+import { useNotificationPreferences } from '../hooks/useNotificationPreferences';
 
 type TabType = 'orders' | 'addresses' | 'profile' | 'notifications';
 
@@ -628,17 +629,9 @@ export default function AccountPage() {
   const [savingProfile, setSavingProfile] = useState(false);
   const [profileForm, setProfileForm] = useState({ firstName: '', lastName: '', phoneNumber: '' });
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
-  
-  // Notification preferences state
-  const [notifications, setNotifications] = useState({
-    archiveDrops: true,
-    orderStatus: true,
-    theDispatch: true,
-  });
 
-  const toggleNotification = (key: keyof typeof notifications) => {
-    setNotifications(prev => ({ ...prev, [key]: !prev[key] }));
-  };
+  // Supabase-backed notification preferences
+  const { preferences, loading: prefsLoading, updatePreference } = useNotificationPreferences(customer?.id || null);
 
   // Fetch orders when authenticated
   useEffect(() => {
@@ -882,7 +875,12 @@ export default function AccountPage() {
               Configure your signal preferences
             </p>
             <div className={`text-lg sm:text-3xl font-black mb-0.5 sm:mb-1 pl-2 transition-colors duration-300 ${activeTab === 'notifications' ? 'text-neonRed' : 'text-text-secondary/50'}`}>
-              {Object.values(notifications).filter(Boolean).length}
+              {preferences ? [
+                preferences.notify_new_arrivals,
+                preferences.notify_upcoming_releases,
+                preferences.notify_back_in_stock,
+                preferences.notify_promotions,
+              ].filter(Boolean).length : 0}
             </div>
             <p className="text-[7px] sm:text-[9px] text-text-secondary/50 uppercase tracking-wider font-bold pl-2">Active</p>
           </div>
@@ -1234,24 +1232,38 @@ export default function AccountPage() {
               </div>
 
               <div className="bg-bg-secondary border border-border-color p-8 space-y-4 shadow-2xl">
-                <NotificationToggle
-                  label="Archive Drops"
-                  description="Be the first to know about new technical deployments."
-                  enabled={notifications.archiveDrops}
-                  onToggle={() => toggleNotification('archiveDrops')}
-                />
-                <NotificationToggle
-                  label="Order Status"
-                  description="Real-time updates on your payload delivery status."
-                  enabled={notifications.orderStatus}
-                  onToggle={() => toggleNotification('orderStatus')}
-                />
-                <NotificationToggle
-                  label="The Dispatch"
-                  description="Weekly insights into urban mobility and techwear."
-                  enabled={notifications.theDispatch}
-                  onToggle={() => toggleNotification('theDispatch')}
-                />
+                {!customer ? (
+                  <p className="text-text-secondary text-xs uppercase tracking-wider text-center py-6">Log in to manage notification preferences.</p>
+                ) : prefsLoading ? (
+                  <p className="text-text-secondary text-xs uppercase tracking-wider text-center py-6">Loading preferences...</p>
+                ) : (
+                  <>
+                    <NotificationToggle
+                      label="New Arrivals"
+                      description="Be the first to know about new technical deployments."
+                      enabled={preferences?.notify_new_arrivals ?? true}
+                      onToggle={(enabled) => updatePreference('notify_new_arrivals', enabled)}
+                    />
+                    <NotificationToggle
+                      label="Upcoming Releases"
+                      description="Weekly digest of products dropping soon."
+                      enabled={preferences?.notify_upcoming_releases ?? true}
+                      onToggle={(enabled) => updatePreference('notify_upcoming_releases', enabled)}
+                    />
+                    <NotificationToggle
+                      label="Back In Stock"
+                      description="Get notified when saved products are restocked."
+                      enabled={preferences?.notify_back_in_stock ?? true}
+                      onToggle={(enabled) => updatePreference('notify_back_in_stock', enabled)}
+                    />
+                    <NotificationToggle
+                      label="Promotions"
+                      description="Receive updates on special offers and exclusive drops."
+                      enabled={preferences?.notify_promotions ?? false}
+                      onToggle={(enabled) => updatePreference('notify_promotions', enabled)}
+                    />
+                  </>
+                )}
               </div>
             </>
           )}
