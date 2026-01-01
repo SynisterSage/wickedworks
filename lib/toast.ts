@@ -12,6 +12,7 @@ const defaultOptions: ToastOptions = {
   closeOnClick: true,
   pauseOnHover: true,
   draggable: true,
+  theme: 'auto', // follow document light/dark
 };
 
 export const notifyError = (message: string, options?: ToastOptions) => {

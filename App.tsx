@@ -247,7 +247,7 @@ const App: React.FC = () => {
           pauseOnFocusLoss
           draggable
           pauseOnHover
-          theme="dark"
+          theme="auto" // auto switches light/dark based on document
         />
       </div>
     </div>
