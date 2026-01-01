@@ -11,7 +11,7 @@ interface ProductGridContainerProps {
 
 const ProductGridContainer: React.FC<ProductGridContainerProps> = (props) => {
   const navigate = useNavigate();
-  const { products, loading } = useNewReleases(8);
+  const { products, loading } = useNewReleases(4);
 
   if (loading) return (
     <div className="py-24 flex justify-center">
