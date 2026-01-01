@@ -126,7 +126,7 @@ export async function exchangeCodeForToken(code: string, state: string): Promise
 // Get customer data from Shopify
 export async function fetchCustomer(accessToken: string): Promise<Customer> {
   const query = `
-    query getCustomer {
+    query {
       customer {
         id
         emailAddress {
@@ -143,17 +143,25 @@ export async function fetchCustomer(accessToken: string): Promise<Customer> {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${accessToken}`,
+      'Authorization': accessToken,
     },
     body: JSON.stringify({ query }),
   });
 
   if (!response.ok) {
-    throw new Error('Failed to fetch customer data');
+    const errorText = await response.text();
+    console.error('Customer API error:', errorText);
+    throw new Error(`Failed to fetch customer data: ${response.status} ${errorText}`);
   }
 
-  const { data } = await response.json();
-  const customer = data.customer;
+  const result = await response.json();
+  
+  if (result.errors) {
+    console.error('GraphQL errors:', result.errors);
+    throw new Error(`GraphQL error: ${JSON.stringify(result.errors)}`);
+  }
+
+  const customer = result.data.customer;
 
   return {
     id: customer.id,
