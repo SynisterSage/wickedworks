@@ -452,17 +452,69 @@ const AddressForm: React.FC<AddressFormProps> = ({ address, onClose, onSave, isS
               />
             </div>
             <div className="space-y-2">
-              <label className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] text-text-secondary italic">
-                State/Province (Optional)
+              <label className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] text-text-secondary italic whitespace-nowrap">
+                State/Province
               </label>
-              <input 
-                type="text" 
+              <select 
                 name="province"
                 value={formData.province || ''}
                 onChange={handleChange}
-                placeholder="For reference only"
-                className="w-full bg-bg-primary border border-border-color px-3 py-2 text-xs text-text-primary focus:outline-none focus:border-neonRed/30 transition-all uppercase tracking-wider"
-              />
+                required
+                className="w-full bg-bg-primary border border-border-color px-3 py-2 text-xs text-text-primary focus:outline-none focus:border-neonRed/30 transition-all"
+              >
+                <option value="">Select a state</option>
+                <option value="Alabama">Alabama</option>
+                <option value="Alaska">Alaska</option>
+                <option value="Arizona">Arizona</option>
+                <option value="Arkansas">Arkansas</option>
+                <option value="California">California</option>
+                <option value="Colorado">Colorado</option>
+                <option value="Connecticut">Connecticut</option>
+                <option value="Delaware">Delaware</option>
+                <option value="Florida">Florida</option>
+                <option value="Georgia">Georgia</option>
+                <option value="Hawaii">Hawaii</option>
+                <option value="Idaho">Idaho</option>
+                <option value="Illinois">Illinois</option>
+                <option value="Indiana">Indiana</option>
+                <option value="Iowa">Iowa</option>
+                <option value="Kansas">Kansas</option>
+                <option value="Kentucky">Kentucky</option>
+                <option value="Louisiana">Louisiana</option>
+                <option value="Maine">Maine</option>
+                <option value="Maryland">Maryland</option>
+                <option value="Massachusetts">Massachusetts</option>
+                <option value="Michigan">Michigan</option>
+                <option value="Minnesota">Minnesota</option>
+                <option value="Mississippi">Mississippi</option>
+                <option value="Missouri">Missouri</option>
+                <option value="Montana">Montana</option>
+                <option value="Nebraska">Nebraska</option>
+                <option value="Nevada">Nevada</option>
+                <option value="New Hampshire">New Hampshire</option>
+                <option value="New Jersey">New Jersey</option>
+                <option value="New Mexico">New Mexico</option>
+                <option value="New York">New York</option>
+                <option value="North Carolina">North Carolina</option>
+                <option value="North Dakota">North Dakota</option>
+                <option value="Ohio">Ohio</option>
+                <option value="Oklahoma">Oklahoma</option>
+                <option value="Oregon">Oregon</option>
+                <option value="Pennsylvania">Pennsylvania</option>
+                <option value="Rhode Island">Rhode Island</option>
+                <option value="South Carolina">South Carolina</option>
+                <option value="South Dakota">South Dakota</option>
+                <option value="Tennessee">Tennessee</option>
+                <option value="Texas">Texas</option>
+                <option value="Utah">Utah</option>
+                <option value="Vermont">Vermont</option>
+                <option value="Virginia">Virginia</option>
+                <option value="Washington">Washington</option>
+                <option value="West Virginia">West Virginia</option>
+                <option value="Wisconsin">Wisconsin</option>
+                <option value="Wyoming">Wyoming</option>
+                <option value="District of Columbia">District of Columbia</option>
+              </select>
             </div>
           </div>
 
@@ -682,8 +734,8 @@ export default function AccountPage() {
             onClick={() => setActiveTab('orders')}
             className={`cursor-pointer transition-all duration-300 p-3 sm:p-6 border-2 ${
               activeTab === 'orders' 
-                ? 'bg-bg-secondary border-neonRed shadow-neon scale-[1.02]' 
-                : 'bg-bg-surface border-border-color dark:border-border-color hover:border-neonRed/50 hover:bg-bg-secondary/50'
+                ? 'bg-white dark:bg-bg-secondary border-neonRed shadow-neon scale-[1.02]' 
+                : 'bg-white dark:bg-bg-surface border-border-color dark:border-border-color hover:border-neonRed/50 hover:bg-gray-50 dark:hover:bg-bg-secondary/50'
             } group relative overflow-hidden`}
           >
             {/* Left accent bar - always visible */}
@@ -708,8 +760,8 @@ export default function AccountPage() {
             onClick={() => setActiveTab('addresses')}
             className={`cursor-pointer transition-all duration-300 p-3 sm:p-6 border-2 ${
               activeTab === 'addresses' 
-                ? 'bg-bg-secondary border-neonRed shadow-neon scale-[1.02]' 
-                : 'bg-bg-surface border-border-color dark:border-border-color hover:border-neonRed/50 hover:bg-bg-secondary/50'
+                ? 'bg-white dark:bg-bg-secondary border-neonRed shadow-neon scale-[1.02]' 
+                : 'bg-white dark:bg-bg-surface border-border-color dark:border-border-color hover:border-neonRed/50 hover:bg-gray-50 dark:hover:bg-bg-secondary/50'
             } group relative overflow-hidden`}
           >
             {/* Left accent bar - always visible */}
@@ -734,8 +786,8 @@ export default function AccountPage() {
             onClick={() => setActiveTab('profile')}
             className={`cursor-pointer transition-all duration-300 p-3 sm:p-6 border-2 ${
               activeTab === 'profile' 
-                ? 'bg-bg-secondary border-neonRed shadow-neon scale-[1.02]' 
-                : 'bg-bg-surface border-border-color dark:border-border-color hover:border-neonRed/50 hover:bg-bg-secondary/50'
+                ? 'bg-white dark:bg-bg-secondary border-neonRed shadow-neon scale-[1.02]' 
+                : 'bg-white dark:bg-bg-surface border-border-color dark:border-border-color hover:border-neonRed/50 hover:bg-gray-50 dark:hover:bg-bg-secondary/50'
             } group relative overflow-hidden`}
           >
             {/* Left accent bar - always visible */}
@@ -966,7 +1018,7 @@ export default function AccountPage() {
         )}
 
         {/* Tab Content */}
-        <div className="bg-bg-surface border border-border-color p-6 sm:p-8">
+        <div className="bg-white dark:bg-bg-surface border border-border-color p-6 sm:p-8">
           {/* Orders Tab Content */}
           {activeTab === 'orders' && (
             <>
