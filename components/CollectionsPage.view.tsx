@@ -8,6 +8,15 @@ import GlassCardContainer from './GlassCard.container';
 const CollectionCard: React.FC<{ collection: Collection; onClick: () => void; isFeatured?: boolean }> = ({ collection, onClick, isFeatured }) => {
   const [isHovered, setIsHovered] = useState(false);
 
+  const imageUrl = collection.image?.url 
+    || collection.products?.[0]?.featuredImage?.url 
+    || collection.products?.[0]?.images?.[0]?.url 
+    || 'data:image/gif;base64,R0lGODlhAQABAAAAACw=';
+  const seriesLabel = collection.series || collection.title || 'ACTIVE SERIES';
+  const statusLabel = collection.status || 'ACTIVE';
+  const description = collection.description || 'Awaiting deployment description.';
+  const assetCount = collection.assetCount ?? collection.products?.length ?? 0;
+
   return (
     <div 
       onClick={onClick}
@@ -19,7 +28,7 @@ const CollectionCard: React.FC<{ collection: Collection; onClick: () => void; is
     >
       <div className="absolute inset-0">
         <img 
-          src={collection.image.url} 
+          src={imageUrl}
           alt={collection.title}
           className={`h-full w-full object-cover transition-all duration-[1500ms] ${
             isHovered ? 'scale-105 grayscale-0' : 'scale-100 grayscale opacity-40'
@@ -32,10 +41,10 @@ const CollectionCard: React.FC<{ collection: Collection; onClick: () => void; is
         <div className="max-w-xl">
           <div className="flex items-center gap-4 mb-6">
             <span className="text-[9px] font-black tracking-[0.4em] text-neonRed bg-black/60 backdrop-blur-md px-3 py-1.5 border border-neonRed/20 italic">
-              {collection.series}
+              {seriesLabel}
             </span>
             <span className="text-[9px] font-black tracking-[0.4em] text-white/20 uppercase italic">
-              {collection.status}
+              {statusLabel}
             </span>
           </div>
 
@@ -47,13 +56,13 @@ const CollectionCard: React.FC<{ collection: Collection; onClick: () => void; is
 
           <div className={`grid transition-all duration-500 ease-in-out overflow-hidden ${isHovered ? 'grid-rows-[1fr] opacity-100 mb-8' : 'grid-rows-[0fr] opacity-0'}`}>
             <p className="min-h-0 text-[11px] font-bold text-white/40 uppercase tracking-[0.15em] leading-relaxed pr-12 italic">
-              {collection.description}
+              {description}
             </p>
           </div>
 
           <div className="flex items-center justify-between border-t border-white/10 pt-6">
             <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/20 italic">
-              {collection.assetCount || 0} ASSETS_STAGED
+              {assetCount} ASSETS_STAGED
             </span>
             <span className={`text-[10px] font-black uppercase tracking-[0.4em] transition-all duration-500 flex items-center gap-3 italic ${
               isHovered ? 'text-white opacity-100 translate-x-0' : 'text-white opacity-0 -translate-x-4'

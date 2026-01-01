@@ -14,7 +14,13 @@ export function useCollection(handle: string | null) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!handle) return;
+    if (!handle) {
+      // Clear previous collection when navigating back to directory
+      setData(null);
+      setError(null);
+      setLoading(false);
+      return;
+    }
 
     async function fetchCollection() {
       try {

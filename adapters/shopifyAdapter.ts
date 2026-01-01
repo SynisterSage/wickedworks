@@ -104,19 +104,23 @@ export function mapProductFromGraphQL(node: any): Product {
  * Maps raw Shopify Collection GraphQL node to internal Collection type.
  */
 export function mapCollectionFromGraphQL(node: any): Collection {
+  const products = flattenConnection(node.products).map(mapProductFromGraphQL);
+  const fallbackImage = products[0]?.featuredImage?.url || products[0]?.images?.[0]?.url || '';
+  const fallbackAlt = products[0]?.featuredImage?.altText || products[0]?.images?.[0]?.altText;
+
   return {
     gid: node.id,
     handle: node.handle,
     title: node.title,
     description: node.description || 'Tactical deployments for urban operations.',
     image: { 
-      url: transformImage(node.image?.url), 
-      altText: node.image?.altText 
+      url: transformImage(node.image?.url || fallbackImage), 
+      altText: node.image?.altText || fallbackAlt 
     },
-    products: flattenConnection(node.products).map(mapProductFromGraphQL),
-    series: node.series || 'FW25',
+    products,
+    series: node.series || node.title || 'FW25',
     status: node.status || 'ACTIVE',
-    assetCount: node.products?.edges?.length || node.products?.nodes?.length || 0,
+    assetCount: node.products?.edges?.length || node.products?.nodes?.length || products.length,
     coordinates: node.coordinates,
     deploymentDate: node.deploymentDate,
     unitsDeployed: node.unitsDeployed,
