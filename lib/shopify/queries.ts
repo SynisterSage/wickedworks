@@ -90,6 +90,15 @@ export const PRODUCTS_QUERY = `
             name
             values
           }
+          metafields(identifiers: [
+            {namespace: "release", key: "release_date"},
+            {namespace: "release", key: "vaulted"},
+            {namespace: "release", key: "release_name"}
+          ]) {
+            namespace
+            key
+            value
+          }
         }
       }
     }
@@ -168,6 +177,15 @@ export const PRODUCT_BY_HANDLE_QUERY = `
         id
         name
         values
+      }
+      metafields(identifiers: [
+        {namespace: "release", key: "release_date"},
+        {namespace: "release", key: "vaulted"},
+        {namespace: "release", key: "release_name"}
+      ]) {
+        namespace
+        key
+        value
       }
     }
   }
