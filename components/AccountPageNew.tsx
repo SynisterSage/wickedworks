@@ -213,7 +213,7 @@ const AddressCard: React.FC<AddressCardProps> = ({ address, isDefault, onEdit, o
   const [showConfirm, setShowConfirm] = useState(false);
 
   return (
-    <div className={`border border-border-color transition-all duration-500 bg-bg-secondary ${isOpen ? 'bg-bg-contrast-02' : 'hover:border-text-primary/20'}`}>
+    <div className={`border border-border-color transition-all duration-500 bg-white dark:bg-bg-secondary ${isOpen ? 'bg-bg-contrast-02 dark:bg-bg-tertiary' : 'hover:border-text-primary/20'}`}>
       <div onClick={() => setIsOpen(!isOpen)} className="p-5 cursor-pointer flex flex-row items-center justify-between gap-4">
         <div className="flex flex-col gap-1 min-w-0 flex-1">
           <span className="text-[9px] font-mono font-black text-text-secondary uppercase tracking-widest">
@@ -648,10 +648,10 @@ export default function AccountPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-white dark:bg-bg-primary flex items-center justify-center">
+      <div className="min-h-screen bg-white dark:bg-bg-primary flex items-center justify-center overflow-hidden">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-neonRed mx-auto mb-4"></div>
-          <p className="text-text-secondary text-xs uppercase tracking-widest">Loading your account...</p>
+          <p className="text-gray-600 dark:text-text-secondary text-xs uppercase tracking-widest">Loading your account...</p>
         </div>
       </div>
     );
@@ -986,7 +986,7 @@ export default function AccountPage() {
         )}
 
         {/* Tab Content */}
-        <div className="bg-white dark:bg-bg-surface border border-border-color p-6 sm:p-8">
+        <div className="bg-white dark:bg-bg-secondary border border-border-color p-6 sm:p-8">
           {/* Orders Tab Content */}
           {activeTab === 'orders' && (
             <>

@@ -482,8 +482,8 @@ export async function createCustomerAddress(accessToken: string, address: Partia
 // Update an address
 export async function updateCustomerAddress(accessToken: string, addressId: string, address: Partial<ShopifyAddress>): Promise<ShopifyAddress> {
   const mutation = `
-    mutation UpdateAddress($id: ID!, $address: CustomerAddressInput!) {
-      customerAddressUpdate(id: $id, address: $address) {
+    mutation UpdateAddress($addressId: ID!, $address: CustomerAddressInput!) {
+      customerAddressUpdate(addressId: $addressId, address: $address) {
         customerAddress {
           id
           firstName
@@ -509,7 +509,7 @@ export async function updateCustomerAddress(accessToken: string, addressId: stri
     : undefined;
 
   const variables = {
-    id: addressId,
+    addressId,
     address: {
       firstName: address.firstName,
       lastName: address.lastName,
