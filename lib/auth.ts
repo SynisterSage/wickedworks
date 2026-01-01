@@ -135,7 +135,7 @@ export async function fetchCustomer(accessToken: string): Promise<Customer> {
     }
   `;
 
-  const response = await fetch(`https://shopify.com/authentication/73608003721/customer/api/2024-10/graphql.json`, {
+  const response = await fetch(`https://shopify.com/73608003721/account/customer/api/2024-10/graphql.json`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
