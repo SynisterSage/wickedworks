@@ -26,6 +26,7 @@ export function useNotificationPreferences(customerId: string | null) {
   // Fetch preferences on mount
   useEffect(() => {
     if (!customerId) {
+      console.log('[useNotificationPreferences] No customer ID provided');
       setLoading(false);
       return;
     }
@@ -34,6 +35,8 @@ export function useNotificationPreferences(customerId: string | null) {
       try {
         setLoading(true);
         setError(null);
+        
+        console.log('[useNotificationPreferences] Fetching for customer:', customerId);
 
         const { data, error: fetchError } = await supabase
           .from('notification_preferences')
@@ -41,14 +44,18 @@ export function useNotificationPreferences(customerId: string | null) {
           .eq('customer_id', customerId!)
           .single();
 
+        console.log('[useNotificationPreferences] Fetch result:', { data, error: fetchError });
+
         if (fetchError && fetchError.code !== 'PGRST116') { // PGRST116 = no rows found
           throw fetchError;
         }
 
         if (data) {
+          console.log('[useNotificationPreferences] Found existing preferences:', data);
           setPreferences(data);
         } else {
           // Create default preferences if none exist
+          console.log('[useNotificationPreferences] No preferences found, creating defaults');
           const defaultPrefs: Partial<NotificationPreferences> = {
             customer_id: customerId!,
             notify_new_arrivals: true,
@@ -63,10 +70,13 @@ export function useNotificationPreferences(customerId: string | null) {
             .select()
             .single();
 
+          console.log('[useNotificationPreferences] Create result:', { data: newPrefs, error: createError });
+
           if (createError) throw createError;
           setPreferences(newPrefs);
         }
       } catch (err) {
+        console.error('[useNotificationPreferences] Error:', err);
         handleError('[useNotificationPreferences] Fetch failed', err, false);
         setError(err instanceof Error ? err.message : 'Failed to load preferences');
       } finally {
@@ -79,7 +89,12 @@ export function useNotificationPreferences(customerId: string | null) {
 
   const updatePreference = useCallback(
     async (key: keyof Omit<NotificationPreferences, 'id' | 'customer_id' | 'created_at' | 'updated_at'>, value: boolean) => {
-      if (!preferences || !customerId) return false;
+      if (!preferences || !customerId) {
+        console.log('[useNotificationPreferences] Cannot update - missing data:', { preferences: !!preferences, customerId });
+        return false;
+      }
+
+      console.log('[useNotificationPreferences] Updating preference:', { key, value, customerId });
 
       try {
         const { error: updateError } = await supabase
@@ -89,6 +104,8 @@ export function useNotificationPreferences(customerId: string | null) {
             updated_at: new Date().toISOString(),
           })
           .eq('customer_id', customerId!);
+
+        console.log('[useNotificationPreferences] Update result:', { error: updateError });
 
         if (updateError) throw updateError;
 
@@ -101,6 +118,7 @@ export function useNotificationPreferences(customerId: string | null) {
         notifySuccess('Notification preferences updated');
         return true;
       } catch (err) {
+        console.error('[useNotificationPreferences] Update error:', err);
         handleError('[useNotificationPreferences] Update failed', err);
         return false;
       }

@@ -16,6 +16,8 @@ export function useEmailSubscription() {
       setLoading(true);
       setError(null);
 
+      console.log('[useEmailSubscription] Subscribing email:', email);
+
       const { data, error: subscribeError } = await supabase
         .from('email_subscriptions')
         .upsert({
@@ -26,6 +28,8 @@ export function useEmailSubscription() {
         })
         .select();
 
+      console.log('[useEmailSubscription] Subscribe result:', { data, error: subscribeError });
+
       if (subscribeError) {
         throw subscribeError;
       }
@@ -33,6 +37,7 @@ export function useEmailSubscription() {
       notifySuccess('Successfully subscribed to newsletter!');
       return data;
     } catch (err) {
+      console.error('[useEmailSubscription] Subscribe error:', err);
       const message = handleError('[useEmailSubscription] Subscribe failed', err);
       setError(message);
       return null;

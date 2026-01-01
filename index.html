@@ -5,15 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Wicked Works Storefront</title>
     <script>
+      // Apply theme immediately to prevent flash
       (function() {
-        const theme = localStorage.getItem('theme') || 'dark';
-        const root = document.documentElement;
-        root.classList.remove('light', 'dark');
-        if (theme === 'system') {
-          const systemIsDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-          root.classList.add(systemIsDark ? 'dark' : 'light');
-        } else {
-          root.classList.add(theme);
+        try {
+          const savedTheme = localStorage.getItem('theme');
+          const theme = savedTheme || 'dark'; // Default to dark
+          const root = document.documentElement;
+          
+          root.classList.remove('light', 'dark');
+          
+          if (theme === 'system') {
+            const systemIsDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            root.classList.add(systemIsDark ? 'dark' : 'light');
+          } else {
+            root.classList.add(theme);
+          }
+        } catch (e) {
+          // Fallback to dark if localStorage access fails
+          document.documentElement.classList.add('dark');
         }
       })();
     </script>
