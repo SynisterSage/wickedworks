@@ -217,8 +217,8 @@ const AddressCard: React.FC<AddressCardProps> = ({ address, isDefault, onEdit, o
 
       {/* Delete Confirmation Modal */}
       {showConfirm && (
-        <div className="fixed inset-0 bg-white/40 dark:bg-black/90 backdrop-blur-3xl z-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-bg-secondary border border-border-color max-w-sm w-full p-6 sm:p-8 space-y-6 shadow-2xl">
+        <div className="fixed inset-0 bg-white/40 dark:bg-black/90 backdrop-blur-3xl z-[9999] flex items-center justify-center p-4 pointer-events-auto">
+          <div className="bg-white dark:bg-bg-secondary border border-border-color max-w-sm w-full p-6 sm:p-8 space-y-6 shadow-2xl relative z-[10000]">
             <div>
               <h3 className="text-sm font-black text-text-primary uppercase tracking-widest mb-2">Delete Address?</h3>
               <p className="text-[10px] text-text-secondary">This action cannot be undone.</p>
@@ -281,8 +281,8 @@ const AddressForm: React.FC<AddressFormProps> = ({ address, onClose, onSave, isS
   };
 
   return (
-    <div className="fixed inset-0 bg-white/40 dark:bg-black/90 backdrop-blur-3xl z-50 flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-bg-secondary border border-border-color max-w-md w-full p-6 sm:p-8 space-y-6 max-h-[90vh] overflow-y-auto shadow-2xl">
+    <div className="fixed inset-0 bg-white/40 dark:bg-black/90 backdrop-blur-3xl z-[9999] flex items-center justify-center p-4 pointer-events-auto">
+      <div className="bg-white dark:bg-bg-secondary border border-border-color max-w-md w-full p-6 sm:p-8 space-y-6 max-h-[90vh] overflow-y-auto shadow-2xl relative z-[10000]">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-1.5 h-4 bg-neonRed shadow-neon"></div>
@@ -673,8 +673,8 @@ export default function AccountPage() {
 
         {/* Edit Profile Modal */}
         {showEditProfile && (
-          <div className="fixed inset-0 bg-white/40 dark:bg-black/90 backdrop-blur-3xl z-50 flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-bg-secondary border border-border-color max-w-md w-full p-6 sm:p-8 space-y-6 shadow-2xl">
+          <div className="fixed inset-0 bg-white/40 dark:bg-black/90 backdrop-blur-3xl z-[9999] flex items-center justify-center p-4 pointer-events-auto">
+            <div className="bg-white dark:bg-bg-secondary border border-border-color max-w-md w-full p-6 sm:p-8 space-y-6 shadow-2xl relative z-[10000]">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-1.5 h-4 bg-neonRed shadow-neon"></div>
@@ -793,8 +793,8 @@ export default function AccountPage() {
 
         {/* Edit Profile Modal - Old Version (keeping for reference) */}
         {false && (
-          <div className="fixed inset-0 bg-white/40 dark:bg-black/90 backdrop-blur-3xl z-50 flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-bg-secondary border border-border-color max-w-md w-full p-6 sm:p-8 space-y-6 shadow-2xl">
+          <div className="fixed inset-0 bg-white/40 dark:bg-black/90 backdrop-blur-3xl z-[9999] flex items-center justify-center p-4 pointer-events-auto">
+            <div className="bg-white dark:bg-bg-secondary border border-border-color max-w-md w-full p-6 sm:p-8 space-y-6 shadow-2xl relative z-[10000]">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-1.5 h-4 bg-neonRed shadow-neon"></div>
