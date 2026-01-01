@@ -588,7 +588,7 @@ interface NotificationToggleProps {
   label: string;
   description: string;
   enabled: boolean;
-  onToggle: () => void;
+  onToggle: (nextEnabled: boolean) => void;
 }
 
 const NotificationToggle: React.FC<NotificationToggleProps> = ({ label, description, enabled, onToggle }) => {
@@ -603,7 +603,7 @@ const NotificationToggle: React.FC<NotificationToggleProps> = ({ label, descript
         </p>
       </div>
       <button 
-        onClick={onToggle} 
+        onClick={() => onToggle(!enabled)} 
         className="relative inline-flex items-center cursor-pointer shrink-0 mt-1"
       >
         <div className={`w-12 h-6 transition-all duration-300 border ${enabled ? 'bg-neonRed/10 border-neonRed shadow-neon' : 'bg-bg-contrast-05 border-border-color'}`}>
@@ -1242,25 +1242,25 @@ export default function AccountPage() {
                       label="New Arrivals"
                       description="Be the first to know about new technical deployments."
                       enabled={preferences?.notify_new_arrivals ?? true}
-                      onToggle={(enabled) => updatePreference('notify_new_arrivals', enabled)}
+                      onToggle={(enabled: boolean) => { void updatePreference('notify_new_arrivals', enabled); }}
                     />
                     <NotificationToggle
                       label="Upcoming Releases"
                       description="Weekly digest of products dropping soon."
                       enabled={preferences?.notify_upcoming_releases ?? true}
-                      onToggle={(enabled) => updatePreference('notify_upcoming_releases', enabled)}
+                      onToggle={(enabled: boolean) => { void updatePreference('notify_upcoming_releases', enabled); }}
                     />
                     <NotificationToggle
                       label="Back In Stock"
                       description="Get notified when saved products are restocked."
                       enabled={preferences?.notify_back_in_stock ?? true}
-                      onToggle={(enabled) => updatePreference('notify_back_in_stock', enabled)}
+                      onToggle={(enabled: boolean) => { void updatePreference('notify_back_in_stock', enabled); }}
                     />
                     <NotificationToggle
                       label="Promotions"
                       description="Receive updates on special offers and exclusive drops."
                       enabled={preferences?.notify_promotions ?? false}
-                      onToggle={(enabled) => updatePreference('notify_promotions', enabled)}
+                      onToggle={(enabled: boolean) => { void updatePreference('notify_promotions', enabled); }}
                     />
                   </>
                 )}
