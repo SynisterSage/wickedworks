@@ -82,5 +82,35 @@ export function useEmailSubscription() {
     }
   }, []);
 
-  return { subscribe, unsubscribe, loading, error };
+  const fetchSubscription = useCallback(async (email: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const normalized = email.toLowerCase();
+
+      console.log('[useEmailSubscription] Fetching subscription for:', normalized);
+
+      const { data, error: fetchError } = await supabase
+        .from('email_subscriptions')
+        .select('*')
+        .eq('email', normalized)
+        .order('updated_at', { ascending: false })
+        .limit(1);
+
+      if (fetchError) {
+        throw fetchError;
+      }
+
+      return data?.[0] || null;
+    } catch (err) {
+      const message = handleError('[useEmailSubscription] Fetch failed', err);
+      setError(message);
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  return { subscribe, unsubscribe, fetchSubscription, loading, error };
 }
