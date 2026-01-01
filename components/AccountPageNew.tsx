@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { fetchCustomerOrders, fetchCustomerAddresses, createCustomerAddress, updateCustomerAddress, updateCustomerProfile, deleteCustomerAddress, setDefaultCustomerAddress, ShopifyOrder, ShopifyAddress, getStoredTokens } from '../lib/auth';
 
-type TabType = 'orders' | 'addresses' | 'profile';
+type TabType = 'orders' | 'addresses' | 'profile' | 'notifications';
 
 // Notification Component
 interface NotificationProps {
@@ -776,7 +776,7 @@ export default function AccountPage() {
         </div>
 
         {/* Account Tabs */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-6 sm:mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-12">
           {/* Orders Tab */}
           <div 
             onClick={() => setActiveTab('orders')}
@@ -859,6 +859,32 @@ export default function AccountPage() {
             >
               Edit →
             </button>
+          </div>
+
+          {/* Notifications Tab */}
+          <div 
+            onClick={() => setActiveTab('notifications')}
+            className={`cursor-pointer transition-all duration-300 p-3 sm:p-6 ${
+              activeTab === 'notifications' 
+                ? 'bg-bg-surface dark:bg-bg-secondary border-2 border-neonRed shadow-neon scale-[1.02]' 
+                : 'bg-bg-surface dark:bg-bg-tertiary border border-white/5 hover:border-neonRed/30 hover:bg-bg-contrast-02 dark:hover:bg-bg-secondary/50'
+            } group relative overflow-hidden`}
+          >
+            {/* Left accent bar - always visible */}
+            <div className={`absolute left-0 top-0 bottom-0 w-1.5 transition-all duration-300 ${activeTab === 'notifications' ? 'bg-neonRed shadow-neon' : 'bg-text-secondary/30 dark:bg-text-secondary/40'}`}></div>
+            
+            <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3 pl-2">
+              <h3 className={`text-[11px] sm:text-sm font-black uppercase tracking-widest italic transition-colors duration-300 ${activeTab === 'notifications' ? 'text-neonRed' : 'text-text-secondary group-hover:text-text-primary'}`}>
+                Notifications
+              </h3>
+            </div>
+            <p className={`text-[8px] sm:text-[10px] leading-tight sm:leading-relaxed mb-2 sm:mb-3 pl-2 transition-colors duration-300 hidden sm:block ${activeTab === 'notifications' ? 'text-text-secondary' : 'text-text-secondary/60'}`}>
+              Configure your signal preferences
+            </p>
+            <div className={`text-lg sm:text-3xl font-black mb-0.5 sm:mb-1 pl-2 transition-colors duration-300 ${activeTab === 'notifications' ? 'text-neonRed' : 'text-text-secondary/50'}`}>
+              {Object.values(notifications).filter(Boolean).length}
+            </div>
+            <p className="text-[7px] sm:text-[9px] text-text-secondary/50 uppercase tracking-wider font-bold pl-2">Active</p>
           </div>
         </div>
 
@@ -1194,35 +1220,38 @@ export default function AccountPage() {
                   Edit Profile
                 </button>
               </div>
+            </>
+          )}
 
-              {/* Notification Preferences Section */}
-              <div className="mt-12 pt-8 border-t border-border-color">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-1.5 h-4 bg-neonRed shadow-neon"></div>
-                  <h3 className="text-sm font-black text-text-primary uppercase tracking-widest italic">
-                    Notification Preferences
-                  </h3>
-                </div>
-                <div className="bg-bg-secondary border border-border-color p-8 space-y-4 shadow-2xl">
-                  <NotificationToggle
-                    label="Archive Drops"
-                    description="Be the first to know about new technical deployments."
-                    enabled={notifications.archiveDrops}
-                    onToggle={() => toggleNotification('archiveDrops')}
-                  />
-                  <NotificationToggle
-                    label="Order Status"
-                    description="Real-time updates on your payload delivery status."
-                    enabled={notifications.orderStatus}
-                    onToggle={() => toggleNotification('orderStatus')}
-                  />
-                  <NotificationToggle
-                    label="The Dispatch"
-                    description="Weekly insights into urban mobility and techwear."
-                    enabled={notifications.theDispatch}
-                    onToggle={() => toggleNotification('theDispatch')}
-                  />
-                </div>
+          {/* Notifications Tab Content */}
+          {activeTab === 'notifications' && (
+            <>
+              <div className="flex items-center gap-3 mb-8">
+                <div className="w-1.5 h-4 bg-neonRed shadow-neon"></div>
+                <h3 className="text-sm font-black text-text-primary uppercase tracking-widest italic">
+                  Notification Preferences
+                </h3>
+              </div>
+
+              <div className="bg-bg-secondary border border-border-color p-8 space-y-4 shadow-2xl">
+                <NotificationToggle
+                  label="Archive Drops"
+                  description="Be the first to know about new technical deployments."
+                  enabled={notifications.archiveDrops}
+                  onToggle={() => toggleNotification('archiveDrops')}
+                />
+                <NotificationToggle
+                  label="Order Status"
+                  description="Real-time updates on your payload delivery status."
+                  enabled={notifications.orderStatus}
+                  onToggle={() => toggleNotification('orderStatus')}
+                />
+                <NotificationToggle
+                  label="The Dispatch"
+                  description="Weekly insights into urban mobility and techwear."
+                  enabled={notifications.theDispatch}
+                  onToggle={() => toggleNotification('theDispatch')}
+                />
               </div>
             </>
           )}

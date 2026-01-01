@@ -87,7 +87,8 @@ export const FooterView: React.FC<FooterViewProps> = ({
                   { label: 'Returns', path: ROUTES.RETURNS }, 
                   { label: 'Sizing', path: ROUTES.SIZING }, 
                   { label: 'Contact', path: ROUTES.CONTACT },
-                  { label: 'Privacy', path: ROUTES.PRIVACY }
+                  { label: 'Privacy', path: ROUTES.PRIVACY },
+                  { label: 'Terms', path: ROUTES.TERMS }
                 ].map((link) => {
                   const isActive = location.pathname === link.path;
                   return (
