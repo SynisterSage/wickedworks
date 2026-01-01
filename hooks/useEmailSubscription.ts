@@ -53,14 +53,22 @@ export function useEmailSubscription() {
 
       const normalized = email.toLowerCase();
 
-      // Try hard-delete to honor opt-out
-      const { error: deleteError } = await supabase
-        .from('email_subscriptions')
-        .delete()
-        .eq('email', normalized);
+      console.log('[useEmailSubscription] Unsubscribing email:', normalized);
 
-      if (deleteError) {
-        throw deleteError;
+      const { data, error: unsubscribeError } = await supabase
+        .from('email_subscriptions')
+        .update({
+          is_subscribed: false,
+          unsubscribed_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        })
+        .eq('email', normalized)
+        .select();
+
+      console.log('[useEmailSubscription] Unsubscribe result:', { data, error: unsubscribeError });
+
+      if (unsubscribeError) {
+        throw unsubscribeError;
       }
 
       notifySuccess('You have been unsubscribed');
