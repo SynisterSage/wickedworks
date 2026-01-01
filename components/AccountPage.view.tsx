@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { Order, AccountSection } from '../types';
 import { Icons } from '../constants';
 import { ROUTES } from '../utils/routeHelpers';
+import { useNotificationPreferences } from '../hooks/useNotificationPreferences';
+import { useAuth } from '../contexts/AuthContext';
 
 // --- Reusable Sub-Components ---
 
@@ -78,15 +80,24 @@ const SupportContactForm: React.FC<{ onSubmit: (e: React.FormEvent) => void; loa
   );
 };
 
-const NotificationToggle: React.FC<{ label: string; sub: string }> = ({ label, sub }) => {
-  const [enabled, setEnabled] = useState(true);
+const NotificationToggle: React.FC<{ 
+  label: string; 
+  sub: string; 
+  enabled: boolean; 
+  onToggle: (enabled: boolean) => void;
+  loading?: boolean;
+}> = ({ label, sub, enabled, onToggle, loading }) => {
   return (
     <div className="flex items-start justify-between gap-4 group py-4 border-b border-border-color last:border-0">
       <div className="flex-1 min-w-0 pr-4">
         <h4 className={`text-sm font-black uppercase tracking-tight mb-1 transition-colors italic ${enabled ? 'text-text-primary' : 'text-text-secondary'}`}>{label}</h4>
         <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest leading-relaxed">{sub}</p>
       </div>
-      <button onClick={() => setEnabled(!enabled)} className="relative inline-flex items-center cursor-pointer shrink-0 mt-1">
+      <button 
+        onClick={() => !loading && onToggle(!enabled)} 
+        disabled={loading}
+        className="relative inline-flex items-center cursor-pointer shrink-0 mt-1 disabled:opacity-50 disabled:cursor-wait"
+      >
         <div className={`w-12 h-6 transition-all duration-300 border ${enabled ? 'bg-neonRed/10 border-neonRed shadow-neon' : 'bg-bg-contrast-05 border-border-color'}`}>
           <div className={`absolute top-1 bottom-1 w-4 transition-all duration-300 ${enabled ? 'left-7 bg-neonRed' : 'left-1 bg-text-secondary'}`} />
         </div>
@@ -261,6 +272,9 @@ export const AccountPageView: React.FC<AccountPageViewProps> = ({
   aiMessages, onSendMessage, isAiStreaming
 }) => {
   const navigate = useNavigate();
+  const { customer } = useAuth();
+  const { preferences, loading: prefsLoading, updatePreference } = useNotificationPreferences(customer?.id || null);
+  
   const navItems = [
     { id: 'DETAILS', label: 'Account Details', icon: <Icons.User /> },
     { id: 'ORDERS', label: 'Order History', icon: <Icons.ShoppingBag /> },
@@ -274,7 +288,57 @@ export const AccountPageView: React.FC<AccountPageViewProps> = ({
       case 'DETAILS': return <div className="animate-in slide-in-from-bottom-4 duration-500"><SectionHeader title="Account Details" subtitle="Manage your identity and profile information." /><div className="bg-bg-secondary border border-border-color p-8 space-y-8 shadow-2xl"><div className="grid grid-cols-1 md:grid-cols-2 gap-8"><InputField label="First Name" placeholder="Operative" defaultValue={user.firstName} /><InputField label="Last Name" placeholder="Name" defaultValue={user.lastName} /></div><InputField label="Email Address" placeholder="user@network.ww" defaultValue={user.email} type="email" /><InputField label="Contact Number" placeholder="+1 (000) 000-0000" defaultValue={user.phone} /><div className="pt-4"><button className="w-full md:w-auto bg-neonRed text-white px-8 py-5 text-[10px] font-black uppercase tracking-[0.4em] shadow-neon hover:shadow-neon-strong transition-all active:scale-95">Update Identity</button></div></div></div>;
       case 'ORDERS': return <div className="space-y-4 animate-in slide-in-from-bottom-4 duration-500"><SectionHeader title="Order History" subtitle="Track and manage your previous technical deployments." />{orders.length > 0 ? <div className="space-y-4">{orders.map(o => <OrderReceipt key={o.id} order={o} onInitiateReturn={onInitiateReturn} />)}</div> : <div className="bg-bg-secondary border border-dashed border-border-color p-12 text-center flex flex-col items-center justify-center min-h-[300px]"><div className="w-16 h-16 flex items-center justify-center text-text-secondary/10 mb-6"><Icons.ShoppingBag /></div><h4 className="text-xl font-black uppercase tracking-tighter text-text-secondary mb-2 italic">No Deployment History</h4><p className="text-[10px] font-bold text-text-secondary/50 uppercase tracking-widest mb-8">Your order log is empty.</p><button onClick={() => navigate(ROUTES.SHOP)} className="bg-bg-contrast-05 text-text-secondary px-8 py-4 text-[10px] font-black uppercase tracking-[0.3em] hover:text-text-primary transition-colors border border-border-color">Explore Archives</button></div>}</div>;
       case 'ADDRESSES': return <div className="animate-in slide-in-from-bottom-4 duration-500"><SectionHeader title="Addresses" subtitle="Configure your primary and secondary shipping zones." />{isEditingAddress ? <AddressForm initialData={editingAddressData} onSave={onSaveAddress} onCancel={onCancelAddress} /> : <div className="grid grid-cols-1 md:grid-cols-2 gap-6">{addresses.map(addr => <div key={addr.id} className="bg-bg-secondary p-6 relative group transition-all duration-300 border border-border-color shadow-xl"><div className="absolute top-4 right-4 bg-neonRed text-[8px] font-black px-2 py-0.5 text-white tracking-widest shadow-neon">DEFAULT</div><h4 className="text-[10px] font-black text-text-secondary uppercase mb-4 tracking-widest flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-neonRed shadow-neon"></div>{addr.name}</h4><p className="text-sm font-bold text-text-primary uppercase tracking-tight leading-relaxed">{addr.street}<br />{addr.suite}<br />{addr.city}</p><div className="mt-8 pt-6 border-t border-border-color flex gap-4"><button onClick={() => onEditAddress(addr)} className="text-[9px] font-black text-neonRed uppercase tracking-widest hover:underline">Edit</button><button className="text-[9px] font-black text-text-secondary hover:text-text-primary transition-colors">Delete</button></div></div>)}<button onClick={onAddNewAddress} className="bg-transparent flex flex-col items-center justify-center text-text-secondary hover:text-neonRed border border-dashed border-border-color hover:border-neonRed/40 transition-all group min-h-[160px]"><div className="w-10 h-10 border border-current flex items-center justify-center mb-4 group-hover:shadow-neon group-hover:scale-110 transition-transform"><span className="text-2xl font-light">+</span></div><span className="text-[10px] font-black uppercase tracking-[0.3em]">Add New Zone</span></button></div>}</div>;
-      case 'NOTIFICATIONS': return <div className="animate-in slide-in-from-bottom-4 duration-500"><SectionHeader title="Notifications" subtitle="Configure your signal preferences for drops and updates." /><div className="bg-bg-secondary border border-border-color p-8 space-y-4 shadow-2xl"><NotificationToggle label="Archive Drops" sub="Be the first to know about new technical deployments." /><NotificationToggle label="Order Status" sub="Real-time updates on your payload delivery status." /><NotificationToggle label="The Dispatch" sub="Weekly insights into urban mobility and techwear." /></div></div>;
+      case 'NOTIFICATIONS': return (
+        <div className="animate-in slide-in-from-bottom-4 duration-500">
+          <SectionHeader 
+            title="Notifications" 
+            subtitle="Configure your signal preferences for drops and updates." 
+          />
+          <div className="bg-bg-secondary border border-border-color p-8 space-y-4 shadow-2xl">
+            {!customer ? (
+              <div className="text-center py-12">
+                <p className="text-text-secondary text-sm uppercase tracking-wider mb-4">Authentication Required</p>
+                <p className="text-text-secondary/50 text-xs uppercase tracking-widest">Log in to manage notification preferences</p>
+              </div>
+            ) : prefsLoading ? (
+              <div className="text-center py-12">
+                <p className="text-text-secondary text-xs uppercase tracking-widest">Loading preferences...</p>
+              </div>
+            ) : (
+              <>
+                <NotificationToggle 
+                  label="New Arrivals" 
+                  sub="Be the first to know about new technical deployments." 
+                  enabled={preferences?.notify_new_arrivals ?? true}
+                  onToggle={(enabled) => updatePreference('notify_new_arrivals', enabled)}
+                  loading={prefsLoading}
+                />
+                <NotificationToggle 
+                  label="Upcoming Releases" 
+                  sub="Weekly digest of products dropping soon." 
+                  enabled={preferences?.notify_upcoming_releases ?? true}
+                  onToggle={(enabled) => updatePreference('notify_upcoming_releases', enabled)}
+                  loading={prefsLoading}
+                />
+                <NotificationToggle 
+                  label="Back In Stock" 
+                  sub="Get notified when saved products are restocked." 
+                  enabled={preferences?.notify_back_in_stock ?? true}
+                  onToggle={(enabled) => updatePreference('notify_back_in_stock', enabled)}
+                  loading={prefsLoading}
+                />
+                <NotificationToggle 
+                  label="Promotions" 
+                  sub="Receive updates on special offers and exclusive drops." 
+                  enabled={preferences?.notify_promotions ?? false}
+                  onToggle={(enabled) => updatePreference('notify_promotions', enabled)}
+                  loading={prefsLoading}
+                />
+              </>
+            )}
+          </div>
+        </div>
+      );
       case 'SUPPORT': return <div className="animate-in slide-in-from-bottom-4 duration-500"><SectionHeader title="Support" subtitle="Technical assistance and tactical deployment help." />{isChatActive ? <IndustrialAiChat messages={aiMessages} onSend={onSendMessage} isStreaming={isAiStreaming} onBack={onToggleChat} /> : <div className="grid grid-cols-1 lg:grid-cols-2 gap-8"><SupportContactForm onSubmit={onSupportSubmit} loading={isSupportFormLoading} /><div className="space-y-8"><div className="bg-bg-secondary p-8 group hover:border-neonRed/20 transition-all border border-border-color shadow-2xl flex flex-col justify-center h-full"><h4 className="text-[10px] font-black text-neonRed uppercase tracking-widest mb-2 flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-neonRed animate-pulse shadow-neon"></div>Support Channels</h4><p className="text-[10px] font-bold text-text-secondary uppercase leading-relaxed mb-6 pr-12">Access live assistance or review our technical deployment documents.</p><div className="mt-auto space-y-4"><button onClick={onToggleChat} className="w-full text-center bg-bg-contrast-05 border border-border-color text-text-secondary hover:text-text-primary hover:border-text-primary/20 py-4 text-xs font-black uppercase tracking-widest transition-all">Launch AI Assistant</button><button onClick={() => navigate(ROUTES.RETURNS)} className="w-full text-center bg-bg-contrast-05 border border-border-color text-text-secondary hover:text-text-primary hover:border-text-primary/20 py-4 text-xs font-black uppercase tracking-widest transition-all">Access Knowledge Base</button></div></div></div></div>}</div>;
       default: return null;
     }

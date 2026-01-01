@@ -2,19 +2,26 @@
 import React, { useState } from 'react';
 import { ViewMode } from '../types';
 import ThemeSwitcher from './ThemeSwitcher';
+import { useEmailSubscription } from '../hooks/useEmailSubscription';
 
 interface FooterProps {
   onNavigate?: (view: ViewMode, handle?: string, section?: any) => void;
 }
 
 export default function Footer({ onNavigate }: FooterProps) {
-  const [isSubscribed, setIsSubscribed] = useState(false);
   const [email, setEmail] = useState('');
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const { subscribe, loading } = useEmailSubscription();
 
-  const handleSubscribe = (e: React.FormEvent) => {
+  const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) return;
-    setIsSubscribed(true);
+    if (!email || loading) return;
+    
+    const success = await subscribe(email);
+    if (success) {
+      setEmail(''); // Clear input on success
+      setIsSubscribed(true); // Mark as subscribed
+    }
   };
 
   return (
@@ -131,14 +138,14 @@ export default function Footer({ onNavigate }: FooterProps) {
               </div>
               <button 
                 type="submit" 
-                disabled={isSubscribed}
+                disabled={isSubscribed || loading}
                 className={`w-full py-5 text-[10px] font-black uppercase tracking-[0.5em] transition-all relative overflow-hidden group/btn active:scale-[0.98] ${
                   isSubscribed 
                     ? 'bg-transparent border border-neonRed/40 text-neonRed shadow-neon' 
                     : 'bg-neonRed text-white hover:bg-neonRed/90 hover:shadow-neon-strong'
-                }`}
+                } ${loading ? 'opacity-50 cursor-wait' : ''}`}
               >
-                <span className="relative z-10">{isSubscribed ? 'NETWORK_CONNECTED' : 'Join Archive'}</span>
+                <span className="relative z-10">{loading ? 'CONNECTING...' : isSubscribed ? 'NETWORK_CONNECTED' : 'Join Archive'}</span>
                 {!isSubscribed && (
                   <div className="absolute top-0 left-[-100%] w-1/2 h-full bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-[-25deg] group-hover/btn:left-[150%] transition-all duration-[1200ms]"></div>
                 )}
