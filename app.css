@@ -120,3 +120,32 @@ input:-webkit-autofill {
   50% { width: 4.5rem; }
 }
 .animate-width-pulse { animation: width-pulse 2s cubic-bezier(0.16, 1, 0.3, 1) infinite; }
+
+/* Notification Animations */
+@keyframes slide-down {
+  0% {
+    transform: translate(-50%, -120%);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+}
+
+@keyframes progress {
+  0% {
+    width: 100%;
+  }
+  100% {
+    width: 0%;
+  }
+}
+
+.animate-slide-down {
+  animation: slide-down 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.animate-progress {
+  animation: progress 4s linear;
+}

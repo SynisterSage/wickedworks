@@ -5,6 +5,88 @@ import { fetchCustomerOrders, fetchCustomerAddresses, createCustomerAddress, upd
 
 type TabType = 'orders' | 'addresses' | 'profile';
 
+// Notification Component
+interface NotificationProps {
+  message: string;
+  type: 'success' | 'error';
+  onClose: () => void;
+}
+
+const Notification: React.FC<NotificationProps> = ({ message, type, onClose }) => {
+  useEffect(() => {
+    const timer = setTimeout(onClose, 4000);
+    return () => clearTimeout(timer);
+  }, [onClose]);
+
+  return (
+    <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[10001] w-[calc(100%-2rem)] max-w-md animate-slide-down">
+      <div className={`
+        bg-white dark:bg-bg-secondary 
+        border-2 
+        ${type === 'success' ? 'border-emerald-500 dark:border-emerald-400' : 'border-neonRed'}
+        shadow-2xl
+        p-4 sm:p-5
+        flex items-center gap-3 sm:gap-4
+        relative
+        overflow-hidden
+      `}>
+        {/* Animated pulse bar */}
+        <div className={`
+          absolute left-0 top-0 bottom-0 w-1.5
+          ${type === 'success' ? 'bg-emerald-500 dark:bg-emerald-400' : 'bg-neonRed'}
+          animate-pulse
+        `}></div>
+        
+        {/* Icon */}
+        <div className="flex-shrink-0 ml-2">
+          {type === 'success' ? (
+            <svg className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-500 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          ) : (
+            <svg className="w-5 h-5 sm:w-6 sm:h-6 text-neonRed" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+            </svg>
+          )}
+        </div>
+
+        {/* Message */}
+        <div className="flex-1 min-w-0">
+          <p className={`
+            text-[10px] sm:text-xs 
+            font-black 
+            uppercase 
+            tracking-widest 
+            ${type === 'success' ? 'text-emerald-500 dark:text-emerald-400' : 'text-neonRed'}
+          `}>
+            {type === 'success' ? 'Success' : 'Error'}
+          </p>
+          <p className="text-xs sm:text-sm text-text-primary font-medium mt-0.5 truncate">
+            {message}
+          </p>
+        </div>
+
+        {/* Close button */}
+        <button
+          onClick={onClose}
+          className="flex-shrink-0 text-text-secondary hover:text-neonRed transition-colors text-xl leading-none p-1"
+        >
+          ×
+        </button>
+
+        {/* Progress bar */}
+        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-bg-tertiary overflow-hidden">
+          <div className={`
+            h-full 
+            ${type === 'success' ? 'bg-emerald-500 dark:bg-emerald-400' : 'bg-neonRed'}
+            animate-progress
+          `}></div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // Helper to map Shopify status to display status
 const getDisplayStatus = (financialStatus: string, fulfillmentStatus: string): { status: string; color: string; pulseColor: string } => {
   if (fulfillmentStatus === 'FULFILLED') {
@@ -461,6 +543,7 @@ export default function AccountPage() {
   const [loadingOrders, setLoadingOrders] = useState(false);
   const [loadingAddresses, setLoadingAddresses] = useState(false);
   const [savingAddress, setSavingAddress] = useState(false);
+  const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   // Fetch orders when authenticated
   useEffect(() => {
@@ -573,6 +656,15 @@ export default function AccountPage() {
 
   return (
     <div className="min-h-screen bg-bg-primary py-12 sm:py-16 md:py-20 px-4 sm:px-6">
+      {/* Notification Toast */}
+      {notification && (
+        <Notification
+          message={notification.message}
+          type={notification.type}
+          onClose={() => setNotification(null)}
+        />
+      )}
+      
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8 sm:mb-12">
@@ -762,16 +854,18 @@ export default function AccountPage() {
               try {
                 const tokens = getStoredTokens();
                 if (!tokens?.accessToken) {
-                  alert('Authentication required. Please sign in again.');
+                  setNotification({ message: 'Authentication required. Please sign in again.', type: 'error' });
                   return;
                 }
 
                 if (editingAddress?.id) {
                   // Update existing address
                   await updateCustomerAddress(tokens.accessToken, editingAddress.id, formData);
+                  setNotification({ message: 'Address updated successfully', type: 'success' });
                 } else {
                   // Create new address
                   await createCustomerAddress(tokens.accessToken, formData);
+                  setNotification({ message: 'Address saved successfully', type: 'success' });
                 }
 
                 // Refresh addresses list
@@ -782,7 +876,10 @@ export default function AccountPage() {
                 setEditingAddress(undefined);
               } catch (error) {
                 console.error('Failed to save address:', error);
-                alert(`Error: ${error instanceof Error ? error.message : 'Failed to save address'}`);
+                setNotification({ 
+                  message: error instanceof Error ? error.message : 'Failed to save address', 
+                  type: 'error' 
+                });
               } finally {
                 setSavingAddress(false);
               }
@@ -954,9 +1051,10 @@ export default function AccountPage() {
                           await deleteCustomerAddress(tokens.accessToken, addressId);
                           const customerAddresses = await fetchCustomerAddresses(tokens.accessToken);
                           setAddresses(customerAddresses);
+                          setNotification({ message: 'Address deleted successfully', type: 'success' });
                         } catch (error) {
                           console.error('Failed to delete address:', error);
-                          alert('Failed to delete address');
+                          setNotification({ message: 'Failed to delete address', type: 'error' });
                         }
                       }}
                       onSetDefault={async (addressId) => {
@@ -966,9 +1064,10 @@ export default function AccountPage() {
                           await setDefaultCustomerAddress(tokens.accessToken, addressId);
                           const customerAddresses = await fetchCustomerAddresses(tokens.accessToken);
                           setAddresses(customerAddresses);
+                          setNotification({ message: 'Default address updated', type: 'success' });
                         } catch (error) {
                           console.error('Failed to set default address:', error);
-                          alert('Failed to set default address');
+                          setNotification({ message: 'Failed to set default address', type: 'error' });
                         }
                       }}
                     />

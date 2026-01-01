@@ -360,7 +360,7 @@ export async function createCustomerAddress(accessToken: string, address: Partia
       city: address.city,
       zip: address.zip,
       phoneNumber: address.phoneNumber || undefined,
-      ...(address.province && { provinceCode: address.province }),
+      country: address.country || 'US',
     },
   };
 
@@ -428,7 +428,7 @@ export async function updateCustomerAddress(accessToken: string, addressId: stri
       city: address.city,
       zip: address.zip,
       phoneNumber: address.phoneNumber || undefined,
-      ...(address.province && { provinceCode: address.province }),
+      country: address.country || 'US',
     },
   };
 
