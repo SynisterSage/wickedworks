@@ -21,8 +21,8 @@ const CollectionsPageContainer: React.FC<CollectionsPageContainerProps> = ({
   // Fetch all collections for the grid
   const { collections, loading: collectionsLoading, error: collectionsError } = useCollections();
 
-  // Fetch individual collection with products if a handle is selected
-  const { data: selectedCollection, loading: collectionLoading, error: collectionError } = useCollection(handle || '');
+  // Fetch individual collection with products ONLY if a handle is selected
+  const { data: selectedCollection, loading: collectionLoading, error: collectionError } = useCollection(handle || null);
 
   // Collection products come from the selectedCollection.products array (fetched by useCollection)
   const collectionProducts = useMemo(() => {

@@ -108,15 +108,15 @@ export function mapCollectionFromGraphQL(node: any): Collection {
     gid: node.id,
     handle: node.handle,
     title: node.title,
-    description: node.description,
+    description: node.description || 'Tactical deployments for urban operations.',
     image: { 
       url: transformImage(node.image?.url), 
       altText: node.image?.altText 
     },
     products: flattenConnection(node.products).map(mapProductFromGraphQL),
-    series: node.series || 'SS24',
+    series: node.series || 'FW25',
     status: node.status || 'ACTIVE',
-    assetCount: node.products?.nodes?.length || 0,
+    assetCount: node.products?.edges?.length || node.products?.nodes?.length || 0,
     coordinates: node.coordinates,
     deploymentDate: node.deploymentDate,
     unitsDeployed: node.unitsDeployed,
