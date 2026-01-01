@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { fetchCustomerOrders, ShopifyOrder, getStoredTokens } from '../lib/auth';
+import { fetchCustomerOrders, fetchCustomerAddresses, ShopifyOrder, ShopifyAddress, getStoredTokens } from '../lib/auth';
+
+type TabType = 'orders' | 'addresses' | 'profile';
 
 // Helper to map Shopify status to display status
 const getDisplayStatus = (financialStatus: string, fulfillmentStatus: string): { status: string; color: string; pulseColor: string } => {
@@ -115,12 +117,350 @@ const OrderReceipt: React.FC<{ order: ShopifyOrder }> = ({ order }) => {
   );
 };
 
+// AddressCard Component
+interface AddressCardProps {
+  address: ShopifyAddress;
+  isDefault: boolean;
+  onEdit: (address: ShopifyAddress) => void;
+  onDelete: (addressId: string) => void;
+  onSetDefault: (addressId: string) => void;
+}
+
+const AddressCard: React.FC<AddressCardProps> = ({ address, isDefault, onEdit, onDelete, onSetDefault }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+
+  return (
+    <div className={`border border-border-color transition-all duration-500 bg-bg-secondary ${isOpen ? 'bg-bg-contrast-02' : 'hover:border-text-primary/20'}`}>
+      <div onClick={() => setIsOpen(!isOpen)} className="p-5 cursor-pointer flex flex-row items-center justify-between gap-4">
+        <div className="flex flex-col gap-1 min-w-0 flex-1">
+          <span className="text-[9px] font-mono font-black text-text-secondary uppercase tracking-widest">
+            {address.firstName} {address.lastName}
+          </span>
+          <h4 className="text-xs font-black text-text-primary tracking-tighter uppercase font-mono truncate">
+            {address.address1}
+          </h4>
+          <span className="text-[9px] text-text-secondary/70 truncate">
+            {address.city}, {address.province} {address.zip}
+          </span>
+          {isDefault && (
+            <span className="text-[8px] font-black uppercase tracking-widest text-emerald-500 dark:text-emerald-400 mt-1">
+              Default Address
+            </span>
+          )}
+        </div>
+        <div className={`transition-transform duration-300 ml-1 flex-shrink-0 ${isOpen ? 'rotate-180' : ''}`}>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-3.5 h-3.5 text-text-secondary/50">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+          </svg>
+        </div>
+      </div>
+
+      <div className={`overflow-hidden transition-all duration-500 ease-in-out ${isOpen ? 'max-h-[600px] border-t border-border-color opacity-100' : 'max-h-0 opacity-0'}`}>
+        <div className="p-6 space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs text-text-secondary">
+            <div>
+              <span className="font-bold block mb-1">Name</span>
+              <span>{address.firstName} {address.lastName}</span>
+            </div>
+            <div>
+              <span className="font-bold block mb-1">Phone</span>
+              <span>{address.phone || 'N/A'}</span>
+            </div>
+            <div className="sm:col-span-2">
+              <span className="font-bold block mb-1">Address</span>
+              <span>{address.address1}</span>
+              {address.address2 && <span className="block">{address.address2}</span>}
+            </div>
+            <div>
+              <span className="font-bold block mb-1">City</span>
+              <span>{address.city}</span>
+            </div>
+            <div>
+              <span className="font-bold block mb-1">State/Province</span>
+              <span>{address.province}</span>
+            </div>
+            <div>
+              <span className="font-bold block mb-1">Zip Code</span>
+              <span>{address.zip}</span>
+            </div>
+            <div>
+              <span className="font-bold block mb-1">Country</span>
+              <span>{address.country}</span>
+            </div>
+          </div>
+
+          <div className="pt-4 border-t border-border-color flex flex-col sm:flex-row gap-2">
+            {!isDefault && (
+              <button
+                onClick={() => onSetDefault(address.id)}
+                className="text-[10px] font-bold uppercase tracking-widest text-emerald-500 dark:text-emerald-400 hover:text-emerald-600 dark:hover:text-emerald-300 transition-colors"
+              >
+                Set as Default
+              </button>
+            )}
+            <button
+              onClick={() => onEdit(address)}
+              className="text-[10px] font-bold uppercase tracking-widest text-text-primary hover:text-neonRed transition-colors"
+            >
+              Edit
+            </button>
+            <button
+              onClick={() => setShowConfirm(true)}
+              className="text-[10px] font-bold uppercase tracking-widest text-neonRed hover:text-neonRed/70 transition-colors"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Delete Confirmation Modal */}
+      {showConfirm && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-bg-surface border border-border-color max-w-sm w-full p-6 sm:p-8 space-y-6">
+            <div>
+              <h3 className="text-sm font-black text-text-primary uppercase tracking-widest mb-2">Delete Address?</h3>
+              <p className="text-[10px] text-text-secondary">This action cannot be undone.</p>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowConfirm(false)}
+                className="flex-1 bg-bg-primary border border-border-color hover:border-neonRed/30 text-text-primary font-bold uppercase tracking-widest text-xs py-3 transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  onDelete(address.id);
+                  setShowConfirm(false);
+                }}
+                className="flex-1 bg-neonRed hover:bg-neonRed/90 text-white font-black uppercase tracking-widest text-xs py-3 transition-all shadow-neon hover:shadow-neon-lg"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// AddressForm Component
+interface AddressFormProps {
+  address?: ShopifyAddress;
+  onClose: () => void;
+  onSave: (address: Partial<ShopifyAddress>) => Promise<void>;
+  isSaving?: boolean;
+}
+
+const AddressForm: React.FC<AddressFormProps> = ({ address, onClose, onSave, isSaving }) => {
+  const [formData, setFormData] = useState<Partial<ShopifyAddress>>(
+    address || {
+      firstName: '',
+      lastName: '',
+      address1: '',
+      address2: '',
+      city: '',
+      province: '',
+      zip: '',
+      country: '',
+      phone: '',
+    }
+  );
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await onSave(formData);
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-bg-surface border border-border-color max-w-md w-full p-6 sm:p-8 space-y-6 max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-1.5 h-4 bg-neonRed shadow-neon"></div>
+            <h3 className="text-sm sm:text-base font-black text-text-primary uppercase tracking-widest italic">
+              {address ? 'Edit Address' : 'Add Address'}
+            </h3>
+          </div>
+          <button 
+            onClick={onClose}
+            className="text-text-secondary hover:text-neonRed transition-colors text-2xl leading-none"
+          >
+            ×
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-2">
+              <label className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] text-text-secondary italic">
+                First Name
+              </label>
+              <input 
+                type="text" 
+                name="firstName"
+                value={formData.firstName || ''}
+                onChange={handleChange}
+                required
+                className="w-full bg-bg-primary border border-border-color px-3 py-2 text-xs text-text-primary focus:outline-none focus:border-neonRed/30 transition-all uppercase tracking-wider"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] text-text-secondary italic">
+                Last Name
+              </label>
+              <input 
+                type="text" 
+                name="lastName"
+                value={formData.lastName || ''}
+                onChange={handleChange}
+                required
+                className="w-full bg-bg-primary border border-border-color px-3 py-2 text-xs text-text-primary focus:outline-none focus:border-neonRed/30 transition-all uppercase tracking-wider"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] text-text-secondary italic">
+              Street Address
+            </label>
+            <input 
+              type="text" 
+              name="address1"
+              value={formData.address1 || ''}
+              onChange={handleChange}
+              required
+              className="w-full bg-bg-primary border border-border-color px-3 py-2 text-xs text-text-primary focus:outline-none focus:border-neonRed/30 transition-all uppercase tracking-wider"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] text-text-secondary italic">
+              Apt/Suite (Optional)
+            </label>
+            <input 
+              type="text" 
+              name="address2"
+              value={formData.address2 || ''}
+              onChange={handleChange}
+              className="w-full bg-bg-primary border border-border-color px-3 py-2 text-xs text-text-primary focus:outline-none focus:border-neonRed/30 transition-all uppercase tracking-wider"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-2">
+              <label className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] text-text-secondary italic">
+                City
+              </label>
+              <input 
+                type="text" 
+                name="city"
+                value={formData.city || ''}
+                onChange={handleChange}
+                required
+                className="w-full bg-bg-primary border border-border-color px-3 py-2 text-xs text-text-primary focus:outline-none focus:border-neonRed/30 transition-all uppercase tracking-wider"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] text-text-secondary italic">
+                State/Province
+              </label>
+              <input 
+                type="text" 
+                name="province"
+                value={formData.province || ''}
+                onChange={handleChange}
+                required
+                className="w-full bg-bg-primary border border-border-color px-3 py-2 text-xs text-text-primary focus:outline-none focus:border-neonRed/30 transition-all uppercase tracking-wider"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-2">
+              <label className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] text-text-secondary italic">
+                Zip Code
+              </label>
+              <input 
+                type="text" 
+                name="zip"
+                value={formData.zip || ''}
+                onChange={handleChange}
+                required
+                className="w-full bg-bg-primary border border-border-color px-3 py-2 text-xs text-text-primary focus:outline-none focus:border-neonRed/30 transition-all uppercase tracking-wider"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] text-text-secondary italic">
+                Country
+              </label>
+              <input 
+                type="text" 
+                name="country"
+                value={formData.country || ''}
+                onChange={handleChange}
+                required
+                className="w-full bg-bg-primary border border-border-color px-3 py-2 text-xs text-text-primary focus:outline-none focus:border-neonRed/30 transition-all uppercase tracking-wider"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] text-text-secondary italic">
+              Phone (Optional)
+            </label>
+            <input 
+              type="tel" 
+              name="phone"
+              value={formData.phone || ''}
+              onChange={handleChange}
+              className="w-full bg-bg-primary border border-border-color px-3 py-2 text-xs text-text-primary focus:outline-none focus:border-neonRed/30 transition-all uppercase tracking-wider"
+            />
+          </div>
+
+          <div className="flex gap-3 pt-4 border-t border-border-color">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={isSaving}
+              className="flex-1 bg-bg-primary border border-border-color hover:border-neonRed/30 text-text-primary font-bold uppercase tracking-widest text-xs py-3 transition-all disabled:opacity-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={isSaving}
+              className="flex-1 bg-neonRed hover:bg-neonRed/90 disabled:bg-neonRed/50 text-white font-black uppercase tracking-widest text-xs py-3 transition-all shadow-neon hover:shadow-neon-lg disabled:shadow-none"
+            >
+              {isSaving ? 'Saving...' : 'Save Address'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
 export default function AccountPage() {
   const navigate = useNavigate();
   const { customer, isAuthenticated, isLoading, login, logout } = useAuth();
+  const [activeTab, setActiveTab] = useState<TabType>('orders');
   const [showEditProfile, setShowEditProfile] = useState(false);
+  const [showAddressForm, setShowAddressForm] = useState(false);
+  const [editingAddress, setEditingAddress] = useState<ShopifyAddress | undefined>();
   const [orders, setOrders] = useState<ShopifyOrder[]>([]);
+  const [addresses, setAddresses] = useState<ShopifyAddress[]>([]);
   const [loadingOrders, setLoadingOrders] = useState(false);
+  const [loadingAddresses, setLoadingAddresses] = useState(false);
+  const [savingAddress, setSavingAddress] = useState(false);
 
   // Fetch orders when authenticated
   useEffect(() => {
@@ -143,6 +483,30 @@ export default function AccountPage() {
 
     loadOrders();
   }, [isAuthenticated]);
+
+  // Fetch addresses when authenticated or when tab changes
+  useEffect(() => {
+    const loadAddresses = async () => {
+      if (!isAuthenticated) return;
+      
+      try {
+        setLoadingAddresses(true);
+        const tokens = getStoredTokens();
+        if (!tokens?.accessToken) return;
+        
+        const customerAddresses = await fetchCustomerAddresses(tokens.accessToken);
+        setAddresses(customerAddresses);
+      } catch (error) {
+        console.error('Failed to load addresses:', error);
+      } finally {
+        setLoadingAddresses(false);
+      }
+    };
+
+    if (activeTab === 'addresses') {
+      loadAddresses();
+    }
+  }, [isAuthenticated, activeTab]);
 
   if (isLoading) {
     return (
@@ -220,52 +584,90 @@ export default function AccountPage() {
           <div className="h-px bg-gradient-to-r from-neonRed/40 to-transparent w-32 sm:w-48 mt-6 sm:mt-8"></div>
         </div>
 
-        {/* Account Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8 sm:mb-12">
-          {/* Orders Card */}
-          <div className="bg-bg-surface border border-border-color p-5 sm:p-6 hover:border-neonRed/30 transition-all group cursor-pointer">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-1.5 h-4 bg-neonRed shadow-neon"></div>
-              <h3 className="text-xs sm:text-sm font-black text-text-primary uppercase tracking-widest italic">
+        {/* Account Tabs */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-8 sm:mb-12">
+          {/* Orders Tab */}
+          <div 
+            onClick={() => setActiveTab('orders')}
+            className={`cursor-pointer transition-all duration-300 p-5 sm:p-6 border-2 ${
+              activeTab === 'orders' 
+                ? 'bg-bg-secondary border-neonRed shadow-neon scale-[1.02]' 
+                : 'bg-bg-surface border-border-color hover:border-neonRed/50 hover:bg-bg-secondary/50'
+            } group relative overflow-hidden`}
+          >
+            {/* Active indicator line */}
+            <div className={`absolute bottom-0 left-0 h-1 bg-gradient-to-r from-neonRed to-transparent transition-all duration-300 ${activeTab === 'orders' ? 'w-full' : 'w-0'}`}></div>
+            
+            <div className="flex items-center gap-3 mb-3">
+              <div className={`w-1.5 h-4 shadow-neon transition-all duration-300 ${activeTab === 'orders' ? 'bg-neonRed' : 'bg-text-secondary/40'}`}></div>
+              <h3 className={`text-xs sm:text-sm font-black uppercase tracking-widest italic transition-colors duration-300 ${activeTab === 'orders' ? 'text-neonRed' : 'text-text-secondary group-hover:text-text-primary'}`}>
                 Orders
               </h3>
             </div>
-            <p className="text-[10px] sm:text-xs text-text-secondary leading-relaxed mb-4">
+            <p className={`text-[9px] sm:text-[10px] leading-relaxed mb-3 transition-colors duration-300 ${activeTab === 'orders' ? 'text-text-secondary' : 'text-text-secondary/60'}`}>
               View your order history and track shipments
             </p>
-            <div className="text-3xl sm:text-4xl font-black text-neonRed mb-2">{orders.length}</div>
-            <p className="text-[9px] sm:text-[10px] text-text-secondary/60 uppercase tracking-wider">Total Orders</p>
+            <div className={`text-2xl sm:text-3xl font-black mb-1 transition-colors duration-300 ${activeTab === 'orders' ? 'text-neonRed' : 'text-text-secondary/50'}`}>
+              {orders.length}
+            </div>
+            <p className="text-[8px] sm:text-[9px] text-text-secondary/50 uppercase tracking-wider font-bold">Total Orders</p>
           </div>
 
-          {/* Addresses Card */}
-          <div className="bg-bg-surface border border-border-color p-5 sm:p-6 hover:border-neonRed/30 transition-all group cursor-pointer">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-1.5 h-4 bg-neonRed shadow-neon"></div>
-              <h3 className="text-xs sm:text-sm font-black text-text-primary uppercase tracking-widest italic">
+          {/* Addresses Tab */}
+          <div 
+            onClick={() => setActiveTab('addresses')}
+            className={`cursor-pointer transition-all duration-300 p-5 sm:p-6 border-2 ${
+              activeTab === 'addresses' 
+                ? 'bg-bg-secondary border-neonRed shadow-neon scale-[1.02]' 
+                : 'bg-bg-surface border-border-color hover:border-neonRed/50 hover:bg-bg-secondary/50'
+            } group relative overflow-hidden`}
+          >
+            {/* Active indicator line */}
+            <div className={`absolute bottom-0 left-0 h-1 bg-gradient-to-r from-neonRed to-transparent transition-all duration-300 ${activeTab === 'addresses' ? 'w-full' : 'w-0'}`}></div>
+            
+            <div className="flex items-center gap-3 mb-3">
+              <div className={`w-1.5 h-4 shadow-neon transition-all duration-300 ${activeTab === 'addresses' ? 'bg-neonRed' : 'bg-text-secondary/40'}`}></div>
+              <h3 className={`text-xs sm:text-sm font-black uppercase tracking-widest italic transition-colors duration-300 ${activeTab === 'addresses' ? 'text-neonRed' : 'text-text-secondary group-hover:text-text-primary'}`}>
                 Addresses
               </h3>
             </div>
-            <p className="text-[10px] sm:text-xs text-text-secondary leading-relaxed mb-4">
+            <p className={`text-[9px] sm:text-[10px] leading-relaxed mb-3 transition-colors duration-300 ${activeTab === 'addresses' ? 'text-text-secondary' : 'text-text-secondary/60'}`}>
               Manage your shipping and billing addresses
             </p>
-            <div className="text-3xl sm:text-4xl font-black text-neonRed mb-2">0</div>
-            <p className="text-[9px] sm:text-[10px] text-text-secondary/60 uppercase tracking-wider">Saved Addresses</p>
+            <div className={`text-2xl sm:text-3xl font-black mb-1 transition-colors duration-300 ${activeTab === 'addresses' ? 'text-neonRed' : 'text-text-secondary/50'}`}>
+              {addresses.length}
+            </div>
+            <p className="text-[8px] sm:text-[9px] text-text-secondary/50 uppercase tracking-wider font-bold">Saved Addresses</p>
           </div>
 
-          {/* Profile Card */}
-          <div className="bg-bg-surface border border-border-color p-5 sm:p-6 hover:border-neonRed/30 transition-all group cursor-pointer sm:col-span-2 lg:col-span-1">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-1.5 h-4 bg-neonRed shadow-neon"></div>
-              <h3 className="text-xs sm:text-sm font-black text-text-primary uppercase tracking-widest italic">
+          {/* Profile Tab */}
+          <div 
+            onClick={() => setActiveTab('profile')}
+            className={`cursor-pointer transition-all duration-300 p-5 sm:p-6 border-2 ${
+              activeTab === 'profile' 
+                ? 'bg-bg-secondary border-neonRed shadow-neon scale-[1.02]' 
+                : 'bg-bg-surface border-border-color hover:border-neonRed/50 hover:bg-bg-secondary/50'
+            } group relative overflow-hidden`}
+          >
+            {/* Active indicator line */}
+            <div className={`absolute bottom-0 left-0 h-1 bg-gradient-to-r from-neonRed to-transparent transition-all duration-300 ${activeTab === 'profile' ? 'w-full' : 'w-0'}`}></div>
+            
+            <div className="flex items-center gap-3 mb-3">
+              <div className={`w-1.5 h-4 shadow-neon transition-all duration-300 ${activeTab === 'profile' ? 'bg-neonRed' : 'bg-text-secondary/40'}`}></div>
+              <h3 className={`text-xs sm:text-sm font-black uppercase tracking-widest italic transition-colors duration-300 ${activeTab === 'profile' ? 'text-neonRed' : 'text-text-secondary group-hover:text-text-primary'}`}>
                 Profile
               </h3>
             </div>
-            <p className="text-[10px] sm:text-xs text-text-secondary leading-relaxed mb-4">
+            <p className={`text-[9px] sm:text-[10px] leading-relaxed mb-3 transition-colors duration-300 ${activeTab === 'profile' ? 'text-text-secondary' : 'text-text-secondary/60'}`}>
               Update your account information
             </p>
             <button 
-              onClick={() => setShowEditProfile(true)}
-              className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-neonRed hover:text-text-primary transition-colors"
+              onClick={(e) => {
+                e.stopPropagation();
+                setActiveTab('profile');
+                setShowEditProfile(true);
+              }}
+              className={`text-[9px] sm:text-[10px] font-bold uppercase tracking-widest transition-colors duration-300 ${activeTab === 'profile' ? 'text-neonRed hover:text-neonRed/80' : 'text-text-secondary/50 group-hover:text-neonRed'}`}
             >
               Edit Profile →
             </button>
@@ -350,40 +752,259 @@ export default function AccountPage() {
           </div>
         )}
 
-        {/* Recent Activity */}
-        <div className="bg-bg-surface border border-border-color p-6 sm:p-8">
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center gap-3">
-              <div className="w-1.5 h-4 bg-neonRed shadow-neon"></div>
-              <h3 className="text-xs sm:text-sm font-black text-text-primary uppercase tracking-widest italic">
-                Recent Orders
-              </h3>
+        {/* Address Form Modal */}
+        {showAddressForm && (
+          <AddressForm
+            address={editingAddress}
+            onClose={() => {
+              setShowAddressForm(false);
+              setEditingAddress(undefined);
+            }}
+            onSave={async (formData) => {
+              setSavingAddress(true);
+              try {
+                // TODO: Implement address save API call
+                alert('Address save functionality coming soon!');
+                setShowAddressForm(false);
+                setEditingAddress(undefined);
+              } catch (error) {
+                console.error('Failed to save address:', error);
+              } finally {
+                setSavingAddress(false);
+              }
+            }}
+            isSaving={savingAddress}
+          />
+        )}
+
+        {/* Edit Profile Modal - Old Version (keeping for reference) */}
+        {false && (
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-bg-surface border border-border-color max-w-md w-full p-6 sm:p-8 space-y-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-1.5 h-4 bg-neonRed shadow-neon"></div>
+                  <h3 className="text-sm sm:text-base font-black text-text-primary uppercase tracking-widest italic">
+                    Edit Profile
+                  </h3>
+                </div>
+                <button 
+                  onClick={() => setShowEditProfile(false)}
+                  className="text-text-secondary hover:text-neonRed transition-colors text-2xl leading-none"
+                >
+                  ×
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] text-text-secondary italic">
+                    First Name
+                  </label>
+                  <input 
+                    type="text" 
+                    defaultValue={customer?.firstName}
+                    className="w-full bg-bg-primary border border-border-color px-4 py-3 text-xs text-text-primary focus:outline-none focus:border-neonRed/30 transition-all uppercase tracking-wider"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] text-text-secondary italic">
+                    Last Name
+                  </label>
+                  <input 
+                    type="text" 
+                    defaultValue={customer?.lastName}
+                    className="w-full bg-bg-primary border border-border-color px-4 py-3 text-xs text-text-primary focus:outline-none focus:border-neonRed/30 transition-all uppercase tracking-wider"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] text-text-secondary italic">
+                    Email
+                  </label>
+                  <input 
+                    type="email" 
+                    defaultValue={customer?.email}
+                    disabled
+                    className="w-full bg-bg-primary/50 border border-border-color px-4 py-3 text-xs text-text-secondary cursor-not-allowed uppercase tracking-wider"
+                  />
+                  <p className="text-[9px] text-text-secondary/60">Email managed by Shopify</p>
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  onClick={() => setShowEditProfile(false)}
+                  className="flex-1 bg-bg-primary border border-border-color hover:border-neonRed/30 text-text-primary font-bold uppercase tracking-widest text-xs py-3 transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    // TODO: Implement profile update API call
+                    alert('Profile update functionality coming soon!');
+                    setShowEditProfile(false);
+                  }}
+                  className="flex-1 bg-neonRed hover:bg-neonRed/90 text-white font-black uppercase tracking-widest text-xs py-3 transition-all shadow-neon hover:shadow-neon-lg"
+                >
+                  Save Changes
+                </button>
+              </div>
             </div>
           </div>
+        )}
 
-          {loadingOrders ? (
-            <div className="text-center py-12 sm:py-16">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-neonRed mx-auto mb-4"></div>
-              <p className="text-text-secondary text-xs uppercase tracking-wider">Loading orders...</p>
-            </div>
-          ) : orders.length > 0 ? (
-            <div className="space-y-4">
-              {orders.slice(0, 5).map((order) => (
-                <OrderReceipt key={order.id} order={order} />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12 sm:py-16">
-              <p className="text-text-secondary text-xs uppercase tracking-wider mb-6">
-                No orders yet
-              </p>
-              <button
-                onClick={() => navigate('/shop')}
-                className="bg-neonRed hover:bg-neonRed/90 text-white font-black uppercase tracking-widest text-xs py-3 px-6 sm:px-8 transition-all shadow-neon hover:shadow-neon-lg inline-block"
-              >
-                Start Shopping
-              </button>
-            </div>
+        {/* Tab Content */}
+        <div className="bg-bg-surface border border-border-color p-6 sm:p-8">
+          {/* Orders Tab Content */}
+          {activeTab === 'orders' && (
+            <>
+              <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center gap-3">
+                  <div className="w-1.5 h-4 bg-neonRed shadow-neon"></div>
+                  <h3 className="text-xs sm:text-sm font-black text-text-primary uppercase tracking-widest italic">
+                    Recent Orders
+                  </h3>
+                </div>
+              </div>
+
+              {loadingOrders ? (
+                <div className="text-center py-12 sm:py-16">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-neonRed mx-auto mb-4"></div>
+                  <p className="text-text-secondary text-xs uppercase tracking-wider">Loading orders...</p>
+                </div>
+              ) : orders.length > 0 ? (
+                <div className="space-y-4">
+                  {orders.slice(0, 5).map((order) => (
+                    <OrderReceipt key={order.id} order={order} />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12 sm:py-16">
+                  <p className="text-text-secondary text-xs uppercase tracking-wider mb-6">
+                    No orders yet
+                  </p>
+                  <button
+                    onClick={() => navigate('/shop')}
+                    className="bg-neonRed hover:bg-neonRed/90 text-white font-black uppercase tracking-widest text-xs py-3 px-6 sm:px-8 transition-all shadow-neon hover:shadow-neon-lg inline-block"
+                  >
+                    Start Shopping
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Addresses Tab Content */}
+          {activeTab === 'addresses' && (
+            <>
+              <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center gap-3">
+                  <div className="w-1.5 h-4 bg-neonRed shadow-neon"></div>
+                  <h3 className="text-xs sm:text-sm font-black text-text-primary uppercase tracking-widest italic">
+                    Your Addresses
+                  </h3>
+                </div>
+                <button
+                  onClick={() => {
+                    setEditingAddress(undefined);
+                    setShowAddressForm(true);
+                  }}
+                  className="bg-neonRed hover:bg-neonRed/90 text-white font-black uppercase tracking-widest text-xs py-2 px-4 transition-all shadow-neon hover:shadow-neon-lg"
+                >
+                  + Add Address
+                </button>
+              </div>
+
+              {loadingAddresses ? (
+                <div className="text-center py-12 sm:py-16">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-neonRed mx-auto mb-4"></div>
+                  <p className="text-text-secondary text-xs uppercase tracking-wider">Loading addresses...</p>
+                </div>
+              ) : addresses.length > 0 ? (
+                <div className="space-y-4">
+                  {addresses.map((address) => (
+                    <AddressCard 
+                      key={address.id} 
+                      address={address}
+                      isDefault={address.isDefault}
+                      onEdit={(addr) => {
+                        setEditingAddress(addr);
+                        setShowAddressForm(true);
+                      }}
+                      onDelete={() => {
+                        // TODO: Implement delete
+                        alert('Delete coming soon');
+                      }}
+                      onSetDefault={() => {
+                        // TODO: Implement set default
+                        alert('Set default coming soon');
+                      }}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12 sm:py-16">
+                  <p className="text-text-secondary text-xs uppercase tracking-wider mb-6">
+                    No saved addresses
+                  </p>
+                  <button
+                    onClick={() => {
+                      setEditingAddress(undefined);
+                      setShowAddressForm(true);
+                    }}
+                    className="bg-neonRed hover:bg-neonRed/90 text-white font-black uppercase tracking-widest text-xs py-3 px-6 sm:px-8 transition-all shadow-neon hover:shadow-neon-lg inline-block"
+                  >
+                    Add Your First Address
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Profile Tab Content */}
+          {activeTab === 'profile' && (
+            <>
+              <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center gap-3">
+                  <div className="w-1.5 h-4 bg-neonRed shadow-neon"></div>
+                  <h3 className="text-xs sm:text-sm font-black text-text-primary uppercase tracking-widest italic">
+                    Account Information
+                  </h3>
+                </div>
+              </div>
+
+              <div className="max-w-md space-y-6">
+                <div className="space-y-2">
+                  <label className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] text-text-secondary italic">
+                    First Name
+                  </label>
+                  <p className="text-xs text-text-primary font-medium">{customer?.firstName || 'N/A'}</p>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] text-text-secondary italic">
+                    Last Name
+                  </label>
+                  <p className="text-xs text-text-primary font-medium">{customer?.lastName || 'N/A'}</p>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] text-text-secondary italic">
+                    Email
+                  </label>
+                  <p className="text-xs text-text-primary font-medium">{customer?.email || 'N/A'}</p>
+                </div>
+
+                <button
+                  onClick={() => setShowEditProfile(true)}
+                  className="mt-8 bg-neonRed hover:bg-neonRed/90 text-white font-black uppercase tracking-widest text-xs py-3 px-6 transition-all shadow-neon hover:shadow-neon-lg"
+                >
+                  Edit Profile
+                </button>
+              </div>
+            </>
           )}
         </div>
 

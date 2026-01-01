@@ -79,6 +79,20 @@ export interface ShopifyOrder {
   };
 }
 
+export interface ShopifyAddress {
+  id: string;
+  firstName: string;
+  lastName: string;
+  address1: string;
+  address2?: string;
+  city: string;
+  province: string;
+  zip: string;
+  country: string;
+  phone?: string;
+  isDefault: boolean;
+}
+
 // Redirect to Shopify login
 export async function initiateLogin(): Promise<void> {
   const state = generateRandomString(16);
@@ -259,6 +273,55 @@ export async function fetchCustomerOrders(accessToken: string): Promise<ShopifyO
   }
 
   return result.data.customer.orders.nodes;
+}
+
+// Get customer addresses from Shopify
+export async function fetchCustomerAddresses(accessToken: string): Promise<ShopifyAddress[]> {
+  const query = `
+    query {
+      customer {
+        addresses(first: 10) {
+          nodes {
+            id
+            firstName
+            lastName
+            address1
+            address2
+            city
+            province
+            zip
+            country
+            phone
+            isDefault
+          }
+        }
+      }
+    }
+  `;
+
+  const response = await fetch(CUSTOMER_API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': accessToken,
+    },
+    body: JSON.stringify({ query }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('Addresses API error:', errorText);
+    throw new Error(`Failed to fetch addresses: ${response.status}`);
+  }
+
+  const result = await response.json();
+  
+  if (result.errors) {
+    console.error('GraphQL errors:', result.errors);
+    return []; // Return empty array instead of throwing
+  }
+
+  return result.data.customer.addresses.nodes;
 }
 
 // Logout
