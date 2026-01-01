@@ -50,7 +50,17 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (props) => {
   };
 
   const handleMegaMenuNavigate = (handle?: string) => {
-    if (handle) {
+    // Close the mega menu on any navigation
+    setActiveMenuIndex(null);
+
+    if (!handle) {
+      navigate('/collections');
+      return;
+    }
+
+    if (handle.startsWith('/')) {
+      navigate(handle);
+    } else {
       navigate(`/shop/${handle}`);
     }
   };

@@ -96,6 +96,9 @@ export function mapProductFromGraphQL(node: any): Product {
     category: node.productType || 'Outerwear',
     specs: node.specs || [],
     isNew: node.isNew || false,
+    tags: node.tags || [],
+    availableForSale: node.availableForSale,
+    createdAt: node.createdAt,
     ...archiveInfo
   };
 }

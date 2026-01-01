@@ -159,7 +159,8 @@ export const NAV_ITEMS: NavItem[] = [
     dropdownContent: {
       categories: [
         { title: 'Apparel', links: ['Jackets', 'T-Shirts', 'Trousers', 'Mid-layers'] },
-        { title: 'Footwear', links: ['Runners', 'Boots', 'Technical Socks'] }
+        { title: 'Footwear', links: ['Runners', 'Boots', 'Technical Socks'] },
+        { title: 'Accessories', links: ['Bags', 'Caps', 'Gloves'] }
       ],
       featured: [
         { title: 'Core Shell V2', image: 'https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?q=80&w=800', tag: 'RESTOCK' }

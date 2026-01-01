@@ -50,6 +50,9 @@ export interface Product {
   category: string;
   specs?: string[];
   isNew?: boolean;
+  tags?: string[];
+  availableForSale?: boolean;
+  createdAt?: string;
   // Archive Properties
   releaseDate?: string | null;
   isVaulted?: boolean;

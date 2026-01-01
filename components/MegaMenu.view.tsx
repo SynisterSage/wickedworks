@@ -14,12 +14,22 @@ interface MegaMenuViewProps {
     vaulted: Product[];
     loading: boolean;
   };
+  collectionData?: {
+    collections: any[];
+    loading: boolean;
+  };
+  shopAllData?: {
+    categories?: Array<{ title: string; links: Array<{ label: string; path: string }> }>;
+    featuredProducts?: Product[];
+    loading: boolean;
+  };
 }
 
 export const MegaMenuView: React.FC<MegaMenuViewProps> = ({ 
-  item, isOpen, onMouseEnter, onMouseLeave, onNavigate, archiveData 
+  item, isOpen, onMouseEnter, onMouseLeave, onNavigate, archiveData, collectionData, shopAllData 
 }) => {
   const isArchives = item.label.toLowerCase() === 'archives';
+  const isShopAll = item.label.toLowerCase() === 'shop all';
 
   // Determine which featured product to show in the right column for Archives
   const featuredArchiveProduct = archiveData?.upcoming?.[0] || archiveData?.vaulted?.[0];
@@ -85,8 +95,44 @@ export const MegaMenuView: React.FC<MegaMenuViewProps> = ({
                     </ul>
                   </div>
                 </>
+              ) : isShopAll && shopAllData?.categories?.length ? (
+                /* Shop All categories (broad) */
+                shopAllData.categories.map((cat, idx) => (
+                  <div key={idx} className="space-y-8">
+                    <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-neonRed border-l-2 border-neonRed pl-4 italic">{cat.title}</h4>
+                    <ul className="space-y-5">
+                      {cat.links.map((link, lIdx) => (
+                        <li key={lIdx}>
+                          <button 
+                            onClick={() => onNavigate(link.path)}
+                            className="text-text-secondary hover:text-text-primary transition-colors uppercase tracking-widest font-black text-left text-[11px] block"
+                          >
+                            {link.label}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))
+              ) : collectionData && collectionData.collections?.length ? (
+                /* Live Collections List */
+                <div className="space-y-8">
+                  <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-neonRed border-l-2 border-neonRed pl-4 italic">Active_Collections</h4>
+                  <ul className="space-y-5">
+                    {collectionData.collections.map((col) => (
+                      <li key={col.gid}>
+                        <button 
+                          onClick={() => onNavigate(`/collections/${col.handle}`)}
+                          className="text-text-secondary hover:text-text-primary transition-colors uppercase tracking-widest font-black text-left text-[11px] block"
+                        >
+                          {col.title}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               ) : (
-                /* Standard Dropdown Content (Shop All / Collections) */
+                /* Fallback to static nav content */
                 item.dropdownContent?.categories?.map((cat, idx) => (
                   <div key={idx} className="space-y-8">
                     <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-neonRed border-l-2 border-neonRed pl-4 italic">{cat.title}</h4>
@@ -121,14 +167,46 @@ export const MegaMenuView: React.FC<MegaMenuViewProps> = ({
                       <span className="text-[9px] font-black uppercase tracking-[0.3em] bg-neonRed text-white px-3 py-1 mb-3 inline-block shadow-neon">
                         {featuredTag}
                       </span>
-                      <h5 className="text-white font-black uppercase tracking-tighter text-xl leading-none italic">
+                      <h5 className="text-white font-black uppercase tracking-tight text-base md:text-lg leading-snug italic drop-shadow-md max-h-[3.6rem] overflow-hidden break-words">
                         {featuredArchiveProduct.title}
                       </h5>
                     </div>
                   </div>
                 )
+              ) : isShopAll && shopAllData?.featuredProducts?.length ? (
+                shopAllData.featuredProducts.slice(0, 2).map((prod) => {
+                  const img = prod.featuredImage?.url || prod.images?.[0]?.url;
+                  return (
+                    <div key={prod.gid} onClick={() => onNavigate(`/shop/${prod.handle}`)} className="flex-1 group/feat cursor-pointer relative overflow-hidden bg-bg-primary border border-border-color hover:border-neonRed/30 transition-all">
+                      {img && (
+                        <img src={img} alt={prod.title} className="w-full h-full object-cover grayscale group-hover/feat:grayscale-0 group-hover/feat:scale-110 transition-all duration-[1500ms] opacity-60 group-hover:opacity-100" />
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-bg-secondary via-transparent to-transparent opacity-80" />
+                      <div className="absolute bottom-6 left-6 right-6">
+                        <span className="text-[9px] font-black uppercase tracking-[0.3em] bg-neonRed text-white px-3 py-1 mb-3 inline-block shadow-neon">FEATURED</span>
+                        <h5 className="text-white font-black uppercase tracking-tight text-base md:text-lg leading-snug italic drop-shadow-md max-h-[3.6rem] overflow-hidden break-words">{prod.title}</h5>
+                      </div>
+                    </div>
+                  );
+                })
+              ) : collectionData && collectionData.collections?.length ? (
+                collectionData.collections.slice(-2).map((col) => {
+                  const img = col.image?.url || col.products?.[0]?.featuredImage?.url || col.products?.[0]?.images?.[0]?.url;
+                  return (
+                    <div key={col.gid} onClick={() => onNavigate(`/collections/${col.handle}`)} className="flex-1 group/feat cursor-pointer relative overflow-hidden bg-bg-primary border border-border-color hover:border-neonRed/30 transition-all">
+                      {img && (
+                        <img src={img} alt={col.title} className="w-full h-full object-cover grayscale group-hover/feat:grayscale-0 group-hover/feat:scale-110 transition-all duration-[1500ms] opacity-60 group-hover:opacity-100" />
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-bg-secondary via-transparent to-transparent opacity-80" />
+                      <div className="absolute bottom-6 left-6 right-6">
+                        <span className="text-[9px] font-black uppercase tracking-[0.3em] bg-neonRed text-white px-3 py-1 mb-3 inline-block shadow-neon">ACTIVE</span>
+                        <h5 className="text-white font-black uppercase tracking-tight text-base md:text-lg leading-snug italic drop-shadow-md max-h-[3.6rem] overflow-hidden break-words">{col.title}</h5>
+                      </div>
+                    </div>
+                  );
+                })
               ) : (
-                /* Standard Featured Images */
+                /* Static fallback */
                 item.dropdownContent?.featured?.map((feat, idx) => (
                   <div key={idx} onClick={() => onNavigate()} className="flex-1 group/feat cursor-pointer relative overflow-hidden bg-bg-primary border border-border-color hover:border-neonRed/30 transition-all">
                     <img src={feat.image} alt={feat.title} className="w-full h-full object-cover grayscale group-hover/feat:grayscale-0 group-hover/feat:scale-110 transition-all duration-[1500ms] opacity-60 group-hover:opacity-100" />
@@ -158,7 +236,7 @@ export const MegaMenuView: React.FC<MegaMenuViewProps> = ({
            </div>
            
            <button 
-             onClick={() => onNavigate()}
+             onClick={() => onNavigate('/collections')}
              className="text-[10px] font-black text-text-secondary hover:text-neonRed uppercase tracking-[0.4em] transition-all flex items-center gap-4 group"
            >
              View Full Directory 

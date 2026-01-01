@@ -28,6 +28,7 @@ export const PRODUCTS_QUERY = `
           tags
           productType
           availableForSale
+          createdAt
           priceRange {
             minVariantPrice {
               amount
@@ -206,6 +207,9 @@ export const COLLECTIONS_QUERY = `
             altText
             width
             height
+          }
+          products(first: 50) {
+            edges { node { id handle } }
           }
         }
       }
