@@ -66,14 +66,12 @@ export interface ShopifyOrder {
     nodes: Array<{
       title: string;
       quantity: number;
-      variant: {
-        image?: {
-          url: string;
-        };
-        price: {
-          amount: string;
-          currencyCode: string;
-        };
+      image?: {
+        url: string;
+      };
+      price: {
+        amount: string;
+        currencyCode: string;
       };
     }>;
   };
@@ -233,14 +231,12 @@ export async function fetchCustomerOrders(accessToken: string): Promise<ShopifyO
               nodes {
                 title
                 quantity
-                variant {
-                  image {
-                    url
-                  }
-                  price {
-                    amount
-                    currencyCode
-                  }
+                image {
+                  url
+                }
+                price {
+                  amount
+                  currencyCode
                 }
               }
             }
@@ -360,10 +356,11 @@ export async function createCustomerAddress(accessToken: string, address: Partia
       firstName: address.firstName,
       lastName: address.lastName,
       address1: address.address1,
-      address2: address.address2,
+      address2: address.address2 || undefined,
       city: address.city,
       zip: address.zip,
-      phoneNumber: address.phoneNumber,
+      phoneNumber: address.phoneNumber || undefined,
+      ...(address.province && { provinceCode: address.province }),
     },
   };
 
@@ -427,10 +424,11 @@ export async function updateCustomerAddress(accessToken: string, addressId: stri
       firstName: address.firstName,
       lastName: address.lastName,
       address1: address.address1,
-      address2: address.address2,
+      address2: address.address2 || undefined,
       city: address.city,
       zip: address.zip,
-      phoneNumber: address.phoneNumber,
+      phoneNumber: address.phoneNumber || undefined,
+      ...(address.province && { provinceCode: address.province }),
     },
   };
 

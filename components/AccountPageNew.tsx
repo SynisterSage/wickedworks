@@ -84,8 +84,8 @@ const OrderReceipt: React.FC<{ order: ShopifyOrder }> = ({ order }) => {
             {order.lineItems.nodes.map((item, idx) => (
               <div key={idx} className="flex gap-4 items-center">
                 <div className="w-12 h-16 bg-bg-tertiary border border-border-color flex-shrink-0">
-                  {item.variant.image ? (
-                    <img src={item.variant.image.url} alt={item.title} className="w-full h-full object-cover grayscale opacity-60" />
+                  {item.image ? (
+                    <img src={item.image.url} alt={item.title} className="w-full h-full object-cover grayscale opacity-60" />
                   ) : (
                     <div className="w-full h-full bg-bg-contrast-05"></div>
                   )}
@@ -95,7 +95,7 @@ const OrderReceipt: React.FC<{ order: ShopifyOrder }> = ({ order }) => {
                     {item.title}
                   </h5>
                   <span className="text-[9px] font-bold text-text-secondary uppercase">
-                    QTY: {item.quantity} // ${parseFloat(item.variant.price.amount).toFixed(2)}
+                    QTY: {item.quantity} // ${parseFloat(item.price.amount).toFixed(2)}
                   </span>
                 </div>
               </div>
