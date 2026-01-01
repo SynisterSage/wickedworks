@@ -16,7 +16,7 @@ const ArchivesPageContainer: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center space-y-4 bg-[#121212]">
+      <div className="min-h-screen flex flex-col items-center justify-center space-y-4 bg-bg-primary">
         <div className="w-12 h-1 bg-neonRed animate-width-pulse"></div>
         <div className="text-neonRed font-black uppercase tracking-[0.4em] text-[10px] animate-pulse italic">Accessing Archives...</div>
       </div>
@@ -25,10 +25,10 @@ const ArchivesPageContainer: React.FC = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-[#121212]">
-        <h2 className="text-white/20 uppercase font-black tracking-widest text-4xl mb-4 italic leading-none">Access_Denied.</h2>
+      <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-bg-primary">
+        <h2 className="text-text-secondary uppercase font-black tracking-widest text-4xl mb-4 italic leading-none">Access_Denied.</h2>
         <p className="text-neonRed/60 text-[10px] font-black uppercase tracking-widest mb-10">{error}</p>
-        <button onClick={() => navigate('/')} className="text-[10px] font-black text-white border border-white/10 px-8 py-4 hover:bg-white hover:text-black transition-all uppercase tracking-widest">Return to Root</button>
+        <button onClick={() => navigate('/')} className="text-[10px] font-black text-text-primary border border-white/10 px-8 py-4 hover:bg-neonRed hover:text-white transition-all uppercase tracking-widest">Return to Root</button>
       </div>
     );
   }

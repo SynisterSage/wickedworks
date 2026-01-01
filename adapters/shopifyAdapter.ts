@@ -131,10 +131,10 @@ export function mapArticleFromGraphQL(node: any): BlogPost {
   return {
     slug: node.handle,
     title: node.title,
-    author: node.authorV2?.name || 'Anonymous',
+    author: node.author?.name || node.authorV2?.name || 'Anonymous',
     date: new Date(node.publishedAt).toISOString().split('T')[0], // "YYYY-MM-DD"
-    excerpt: node.excerpt,
-    content: node.contentHtml,
+    excerpt: node.excerpt || '',
+    content: node.contentHtml || node.content || '',
     featuredImage: {
       url: transformImage(node.image?.url),
       alt: node.image?.altText || node.title,

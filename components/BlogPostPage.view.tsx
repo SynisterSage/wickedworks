@@ -43,8 +43,8 @@ export const BlogPostPageView: React.FC<BlogPostPageViewProps> = ({ post, relate
             </div>
           </header>
 
-          <div className="aspect-[16/9] bg-bg-secondary border border-border-color mb-16 overflow-hidden">
-            <img src={post.featuredImage.url} alt={post.featuredImage.alt} className="w-full h-full object-cover grayscale opacity-50" />
+          <div className="aspect-[16/9] bg-bg-secondary border border-border-color mb-16 overflow-hidden group">
+            <img src={post.featuredImage.url} alt={post.featuredImage.alt} className="w-full h-full object-cover grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700 group-hover:scale-105" />
           </div>
 
           <div 
