@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { fetchCustomerOrders, fetchCustomerAddresses, createCustomerAddress, updateCustomerAddress, deleteCustomerAddress, setDefaultCustomerAddress, ShopifyOrder, ShopifyAddress, getStoredTokens } from '../lib/auth';
+import { fetchCustomerOrders, fetchCustomerAddresses, createCustomerAddress, updateCustomerAddress, updateCustomerProfile, deleteCustomerAddress, setDefaultCustomerAddress, ShopifyOrder, ShopifyAddress, getStoredTokens } from '../lib/auth';
 
 type TabType = 'orders' | 'addresses' | 'profile';
 
@@ -584,7 +584,7 @@ const AddressForm: React.FC<AddressFormProps> = ({ address, onClose, onSave, isS
 
 export default function AccountPage() {
   const navigate = useNavigate();
-  const { customer, isAuthenticated, isLoading, login, logout } = useAuth();
+  const { customer, isAuthenticated, isLoading, login, logout, refreshCustomer } = useAuth();
   const [activeTab, setActiveTab] = useState<TabType>('orders');
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [showAddressForm, setShowAddressForm] = useState(false);
@@ -594,6 +594,8 @@ export default function AccountPage() {
   const [loadingOrders, setLoadingOrders] = useState(false);
   const [loadingAddresses, setLoadingAddresses] = useState(false);
   const [savingAddress, setSavingAddress] = useState(false);
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [profileForm, setProfileForm] = useState({ firstName: '', lastName: '', phoneNumber: '' });
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   // Fetch orders when authenticated
@@ -618,16 +620,20 @@ export default function AccountPage() {
     loadOrders();
   }, [isAuthenticated]);
 
-  // Fetch addresses when authenticated or when tab changes
+  // Fetch addresses as soon as the account page is entered (once authenticated)
+  // so the Addresses tab count is accurate without requiring a click.
   useEffect(() => {
     const loadAddresses = async () => {
-      if (!isAuthenticated) return;
-      
+      if (!isAuthenticated) {
+        setAddresses([]);
+        return;
+      }
+
       try {
         setLoadingAddresses(true);
         const tokens = getStoredTokens();
         if (!tokens?.accessToken) return;
-        
+
         const customerAddresses = await fetchCustomerAddresses(tokens.accessToken);
         setAddresses(customerAddresses);
       } catch (error) {
@@ -637,10 +643,8 @@ export default function AccountPage() {
       }
     };
 
-    if (activeTab === 'addresses') {
-      loadAddresses();
-    }
-  }, [isAuthenticated, activeTab]);
+    loadAddresses();
+  }, [isAuthenticated]);
 
   if (isLoading) {
     return (
@@ -718,13 +722,15 @@ export default function AccountPage() {
       
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8 sm:mb-12">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black uppercase tracking-tighter text-text-primary mb-4 leading-none italic">
+        <div className="mb-8 sm:mb-12 space-y-3">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black uppercase tracking-tighter text-text-primary leading-none">
             Welcome Back<span className="text-neonRed">.</span>
           </h1>
-          <p className="text-sm sm:text-base text-text-secondary mb-2">{customer?.displayName}</p>
-          <p className="text-xs sm:text-sm text-text-secondary/60">{customer?.email}</p>
-          <div className="h-px bg-gradient-to-r from-neonRed/40 to-transparent w-32 sm:w-48 mt-6 sm:mt-8"></div>
+          <div className="space-y-1">
+            <p className="text-sm sm:text-base text-text-primary font-semibold">{customer?.displayName}</p>
+            <p className="text-xs sm:text-sm text-text-secondary/70">{customer?.email}</p>
+          </div>
+          <div className="h-px bg-gradient-to-r from-neonRed/40 to-transparent w-32 sm:w-48"></div>
         </div>
 
         {/* Account Tabs */}
@@ -826,21 +832,58 @@ export default function AccountPage() {
                   </h3>
                 </div>
                 <button 
-                  onClick={() => setShowEditProfile(false)}
+                  onClick={() => {
+                    setShowEditProfile(false);
+                    setProfileForm({ firstName: '', lastName: '', phoneNumber: '' });
+                  }}
                   className="text-text-secondary hover:text-neonRed transition-colors text-2xl leading-none"
                 >
                   ×
                 </button>
               </div>
 
-              <div className="space-y-4">
+              <form onSubmit={async (e) => {
+                e.preventDefault();
+                setSavingProfile(true);
+                try {
+                  const tokens = getStoredTokens();
+                  if (!tokens?.accessToken) {
+                    setNotification({ message: 'Authentication required. Please sign in again.', type: 'error' });
+                    return;
+                  }
+
+                  await updateCustomerProfile(tokens.accessToken, {
+                    firstName: profileForm.firstName || customer?.firstName,
+                    lastName: profileForm.lastName || customer?.lastName,
+                    phoneNumber: profileForm.phoneNumber || undefined,
+                  });
+
+                  // Refresh customer data
+                  if (refreshCustomer) {
+                    await refreshCustomer();
+                  }
+
+                  setNotification({ message: 'Profile updated successfully', type: 'success' });
+                  setShowEditProfile(false);
+                  setProfileForm({ firstName: '', lastName: '', phoneNumber: '' });
+                } catch (error) {
+                  console.error('Failed to update profile:', error);
+                  setNotification({ 
+                    message: error instanceof Error ? error.message : 'Failed to update profile', 
+                    type: 'error' 
+                  });
+                } finally {
+                  setSavingProfile(false);
+                }
+              }} className="space-y-4">
                 <div className="space-y-2">
                   <label className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] text-text-secondary italic">
                     First Name
                   </label>
                   <input 
                     type="text" 
-                    defaultValue={customer?.firstName}
+                    value={profileForm.firstName || customer?.firstName || ''}
+                    onChange={(e) => setProfileForm(prev => ({ ...prev, firstName: e.target.value }))}
                     className="w-full bg-bg-primary border border-border-color px-4 py-3 text-xs text-text-primary focus:outline-none focus:border-neonRed/30 transition-all uppercase tracking-wider"
                   />
                 </div>
@@ -851,7 +894,8 @@ export default function AccountPage() {
                   </label>
                   <input 
                     type="text" 
-                    defaultValue={customer?.lastName}
+                    value={profileForm.lastName || customer?.lastName || ''}
+                    onChange={(e) => setProfileForm(prev => ({ ...prev, lastName: e.target.value }))}
                     className="w-full bg-bg-primary border border-border-color px-4 py-3 text-xs text-text-primary focus:outline-none focus:border-neonRed/30 transition-all uppercase tracking-wider"
                   />
                 </div>
@@ -862,32 +906,34 @@ export default function AccountPage() {
                   </label>
                   <input 
                     type="email" 
-                    defaultValue={customer?.email}
+                    value={customer?.email || ''}
                     disabled
                     className="w-full bg-bg-primary/50 border border-border-color px-4 py-3 text-xs text-text-secondary cursor-not-allowed uppercase tracking-wider"
                   />
                   <p className="text-[9px] text-text-secondary/60">Email managed by Shopify</p>
                 </div>
-              </div>
 
-              <div className="flex gap-3 pt-4">
-                <button
-                  onClick={() => setShowEditProfile(false)}
-                  className="flex-1 bg-bg-primary border border-border-color hover:border-neonRed/30 text-text-primary font-bold uppercase tracking-widest text-xs py-3 transition-all"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={() => {
-                    // TODO: Implement profile update API call
-                    alert('Profile update functionality coming soon!');
-                    setShowEditProfile(false);
-                  }}
-                  className="flex-1 bg-neonRed hover:bg-neonRed/90 text-white font-black uppercase tracking-widest text-xs py-3 transition-all shadow-neon hover:shadow-neon-lg"
-                >
-                  Save Changes
-                </button>
-              </div>
+                <div className="flex gap-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowEditProfile(false);
+                      setProfileForm({ firstName: '', lastName: '', phoneNumber: '' });
+                    }}
+                    disabled={savingProfile}
+                    className="flex-1 bg-bg-primary border border-border-color hover:border-neonRed/30 text-text-primary font-bold uppercase tracking-widest text-xs py-3 transition-all disabled:opacity-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={savingProfile}
+                    className="flex-1 bg-neonRed hover:bg-neonRed/90 disabled:bg-neonRed/50 text-white font-black uppercase tracking-widest text-xs py-3 transition-all shadow-neon hover:shadow-neon-lg disabled:shadow-none"
+                  >
+                    {savingProfile ? 'Saving...' : 'Save Changes'}
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         )}
@@ -937,84 +983,6 @@ export default function AccountPage() {
             }}
             isSaving={savingAddress}
           />
-        )}
-
-        {/* Edit Profile Modal - Old Version (keeping for reference) */}
-        {false && (
-          <div className="fixed inset-0 bg-white/40 dark:bg-black/90 backdrop-blur-3xl z-[9999] flex items-center justify-center p-4 pointer-events-auto">
-            <div className="bg-white dark:bg-bg-secondary border border-border-color max-w-md w-full p-6 sm:p-8 space-y-6 shadow-2xl relative z-[10000]">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-1.5 h-4 bg-neonRed shadow-neon"></div>
-                  <h3 className="text-sm sm:text-base font-black text-text-primary uppercase tracking-widest italic">
-                    Edit Profile
-                  </h3>
-                </div>
-                <button 
-                  onClick={() => setShowEditProfile(false)}
-                  className="text-text-secondary hover:text-neonRed transition-colors text-2xl leading-none"
-                >
-                  ×
-                </button>
-              </div>
-
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <label className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] text-text-secondary italic">
-                    First Name
-                  </label>
-                  <input 
-                    type="text" 
-                    defaultValue={customer?.firstName}
-                    className="w-full bg-bg-primary border border-border-color px-4 py-3 text-xs text-text-primary focus:outline-none focus:border-neonRed/30 transition-all uppercase tracking-wider"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] text-text-secondary italic">
-                    Last Name
-                  </label>
-                  <input 
-                    type="text" 
-                    defaultValue={customer?.lastName}
-                    className="w-full bg-bg-primary border border-border-color px-4 py-3 text-xs text-text-primary focus:outline-none focus:border-neonRed/30 transition-all uppercase tracking-wider"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] text-text-secondary italic">
-                    Email
-                  </label>
-                  <input 
-                    type="email" 
-                    defaultValue={customer?.email}
-                    disabled
-                    className="w-full bg-bg-primary/50 border border-border-color px-4 py-3 text-xs text-text-secondary cursor-not-allowed uppercase tracking-wider"
-                  />
-                  <p className="text-[9px] text-text-secondary/60">Email managed by Shopify</p>
-                </div>
-              </div>
-
-              <div className="flex gap-3 pt-4">
-                <button
-                  onClick={() => setShowEditProfile(false)}
-                  className="flex-1 bg-bg-primary border border-border-color hover:border-neonRed/30 text-text-primary font-bold uppercase tracking-widest text-xs py-3 transition-all"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={() => {
-                    // TODO: Implement profile update API call
-                    alert('Profile update functionality coming soon!');
-                    setShowEditProfile(false);
-                  }}
-                  className="flex-1 bg-neonRed hover:bg-neonRed/90 text-white font-black uppercase tracking-widest text-xs py-3 transition-all shadow-neon hover:shadow-neon-lg"
-                >
-                  Save Changes
-                </button>
-              </div>
-            </div>
-          </div>
         )}
 
         {/* Tab Content */}

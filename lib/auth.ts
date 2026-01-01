@@ -594,6 +594,76 @@ export async function deleteCustomerAddress(accessToken: string, addressId: stri
   }
 }
 
+// Update customer profile
+export async function updateCustomerProfile(
+  accessToken: string, 
+  profile: { firstName?: string; lastName?: string; phoneNumber?: string }
+): Promise<Customer> {
+  const mutation = `
+    mutation UpdateCustomer($input: CustomerUpdateInput!) {
+      customerUpdate(input: $input) {
+        customer {
+          id
+          emailAddress {
+            emailAddress
+          }
+          firstName
+          lastName
+          displayName
+        }
+        userErrors {
+          field
+          message
+        }
+      }
+    }
+  `;
+
+  const variables = {
+    input: {
+      ...(profile.firstName && { firstName: profile.firstName }),
+      ...(profile.lastName && { lastName: profile.lastName }),
+      ...(profile.phoneNumber && { phoneNumber: profile.phoneNumber }),
+    },
+  };
+
+  const response = await fetch(CUSTOMER_API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': accessToken,
+    },
+    body: JSON.stringify({ query: mutation, variables }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('Update customer error:', errorText);
+    throw new Error(`Failed to update profile: ${response.status}`);
+  }
+
+  const result = await response.json();
+  
+  if (result.errors) {
+    console.error('GraphQL errors:', result.errors);
+    throw new Error(`GraphQL error: ${JSON.stringify(result.errors)}`);
+  }
+
+  if (result.data.customerUpdate.userErrors?.length > 0) {
+    throw new Error(result.data.customerUpdate.userErrors[0].message);
+  }
+
+  const customer = result.data.customerUpdate.customer;
+
+  return {
+    id: customer.id,
+    email: customer.emailAddress?.emailAddress || '',
+    firstName: customer.firstName,
+    lastName: customer.lastName,
+    displayName: customer.displayName,
+  };
+}
+
 // Set default address
 export async function setDefaultCustomerAddress(accessToken: string, addressId: string): Promise<void> {
   const mutation = `
