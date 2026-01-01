@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Icons } from '../constants';
 import { NavItem } from '../types';
+import { useAuth } from '../contexts/AuthContext';
 
 interface HeaderViewProps {
   isScrolled: boolean;
@@ -33,9 +34,19 @@ export const HeaderView: React.FC<HeaderViewProps> = ({
   children
 }) => {
   const navigate = useNavigate();
+  const { isAuthenticated, login } = useAuth();
+  
   const headerBgClass = isScrolled || activeMenuIndex !== null
     ? 'bg-bg-primary/95 backdrop-blur-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] border-border-color' 
     : 'bg-transparent border-transparent';
+
+  const handleAccountClick = () => {
+    if (isAuthenticated) {
+      navigate('/account');
+    } else {
+      login();
+    }
+  };
 
   return (
     <>
@@ -118,11 +129,14 @@ export const HeaderView: React.FC<HeaderViewProps> = ({
               </button>
               
               <button 
-                onClick={() => onOpenAccessPanel()} 
-                className={`flex text-text-primary hover:text-neonRed transition-all duration-300 relative w-10 h-10 items-center justify-center`}
-                aria-label="Account Dashboard"
+                onClick={handleAccountClick} 
+                className={`flex text-text-primary hover:text-neonRed transition-all duration-300 relative w-10 h-10 items-center justify-center ${isAuthenticated ? 'text-neonRed' : ''}`}
+                aria-label={isAuthenticated ? 'Account Dashboard' : 'Sign In'}
               >
                 <Icons.User />
+                {isAuthenticated && (
+                  <span className="absolute top-0.5 right-0.5 w-2 h-2 bg-neonRed rounded-full shadow-neon"></span>
+                )}
               </button>
             </div>
           </div>

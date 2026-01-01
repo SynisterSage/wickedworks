@@ -7,7 +7,7 @@ import HeaderContainer from './components/Header.container';
 import ShopPageContainer from './components/ShopPage.container';
 import CollectionsPageContainer from './components/CollectionsPage.container';
 import ArchivesPageContainer from './components/ArchivesPage.container';
-import AccountPageContainer from './components/AccountPage.container';
+import AccountPageNew from './components/AccountPageNew';
 import SavedPageContainer from './components/SavedPage.container';
 import AboutPage from './components/AboutPage';
 import ReturnsPage from './components/ReturnsPage';
@@ -31,6 +31,8 @@ import { Product, Variant } from './types';
 import Preloader from './components/Preloader';
 import BlogPageContainer from './components/BlogPage.container';
 import BlogPostPageContainer from './components/BlogPostPage.container';
+import AuthCallback from './components/AuthCallback';
+import { AuthProvider } from './contexts/AuthContext';
 
 const App: React.FC = () => {
   const location = useLocation();
@@ -94,18 +96,19 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-bg-primary font-sans text-text-primary transition-colors duration-500 selection:bg-neonRed selection:text-white">
-      {isLoading && <Preloader />}
-      
-      <div className={`transition-opacity duration-1000 ${isLoading ? 'opacity-0' : 'opacity-100'}`}>
-        <HeaderContainer 
-          cartCount={cartCount}
-          savedCount={savedHandles.length}
-          onOpenSearch={() => setIsSearchOpen(true)}
-          onOpenCart={() => setIsCartOpen(true)}
-          onOpenMobileMenu={() => setIsMobileMenuOpen(true)}
-          onOpenAccessPanel={() => setIsAccessPanelOpen(true)}
-        />
+    <AuthProvider>
+      <div className="min-h-screen bg-bg-primary font-sans text-text-primary transition-colors duration-500 selection:bg-neonRed selection:text-white">
+        {isLoading && <Preloader />}
+        
+        <div className={`transition-opacity duration-1000 ${isLoading ? 'opacity-0' : 'opacity-100'}`}>
+          <HeaderContainer 
+            cartCount={cartCount}
+            savedCount={savedHandles.length}
+            onOpenSearch={() => setIsSearchOpen(true)}
+            onOpenCart={() => setIsCartOpen(true)}
+            onOpenMobileMenu={() => setIsMobileMenuOpen(true)}
+            onOpenAccessPanel={() => setIsAccessPanelOpen(true)}
+          />
 
         <main className="pt-24 md:pt-20">
           <Routes>
@@ -154,8 +157,8 @@ const App: React.FC = () => {
             <Route path="/archives" element={<ArchivesPageContainer />} />
 
             {/* Account & Saved */}
-            <Route path="/account" element={<AccountPageContainer />} />
-            <Route path="/account/:section" element={<AccountPageContainer />} />
+            <Route path="/account" element={<AccountPageNew />} />
+            <Route path="/auth/callback" element={<AuthCallback />} />
             <Route path="/saved" element={
               <SavedPageContainer 
                 products={savedProducts} 
@@ -232,6 +235,7 @@ const App: React.FC = () => {
         />
       </div>
     </div>
+    </AuthProvider>
   );
 };
 

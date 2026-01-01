@@ -9,6 +9,7 @@ interface ImportMetaEnv {
   readonly VITE_CUSTOMER_ACCOUNT_AUTH_URL: string;
   readonly VITE_CUSTOMER_ACCOUNT_TOKEN_URL: string;
   readonly VITE_CUSTOMER_ACCOUNT_LOGOUT_URL: string;
+  readonly VITE_APP_URL: string;
   readonly GEMINI_API_KEY: string;
 }
 
