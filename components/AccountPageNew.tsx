@@ -213,7 +213,7 @@ const AddressCard: React.FC<AddressCardProps> = ({ address, isDefault, onEdit, o
   const [showConfirm, setShowConfirm] = useState(false);
 
   return (
-    <div className={`border border-border-color transition-all duration-500 bg-white dark:bg-bg-secondary ${isOpen ? 'bg-bg-contrast-02 dark:bg-bg-tertiary' : 'hover:border-text-primary/20'}`}>
+    <div className={`border border-border-color transition-all duration-500 bg-bg-surface dark:bg-bg-secondary ${isOpen ? 'bg-bg-contrast-02 dark:bg-bg-tertiary' : 'hover:border-text-primary/20'}`}>
       <div onClick={() => setIsOpen(!isOpen)} className="p-5 cursor-pointer flex flex-row items-center justify-between gap-4">
         <div className="flex flex-col gap-1 min-w-0 flex-1">
           <span className="text-[9px] font-mono font-black text-text-secondary uppercase tracking-widest">
@@ -651,7 +651,7 @@ export default function AccountPage() {
       <div className="min-h-screen bg-white dark:bg-bg-primary flex items-center justify-center overflow-hidden">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-neonRed mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-text-secondary text-xs uppercase tracking-widest">Loading your account...</p>
+          <p className="text-gray-700 dark:text-text-secondary text-xs uppercase tracking-widest">Loading your account...</p>
         </div>
       </div>
     );
@@ -740,8 +740,8 @@ export default function AccountPage() {
             onClick={() => setActiveTab('orders')}
             className={`cursor-pointer transition-all duration-300 p-3 sm:p-6 border-2 ${
               activeTab === 'orders' 
-                ? 'bg-white dark:bg-bg-secondary border-neonRed shadow-neon scale-[1.02]' 
-                : 'bg-white dark:bg-bg-surface border-border-color dark:border-border-color hover:border-neonRed/50 hover:bg-gray-50 dark:hover:bg-bg-secondary/50'
+                ? 'bg-bg-surface dark:bg-bg-secondary border-neonRed shadow-neon scale-[1.02]' 
+                : 'bg-bg-surface dark:bg-bg-tertiary border-border-color hover:border-neonRed/50 hover:bg-bg-contrast-02 dark:hover:bg-bg-secondary/50'
             } group relative overflow-hidden`}
           >
             {/* Left accent bar - always visible */}
@@ -766,8 +766,8 @@ export default function AccountPage() {
             onClick={() => setActiveTab('addresses')}
             className={`cursor-pointer transition-all duration-300 p-3 sm:p-6 border-2 ${
               activeTab === 'addresses' 
-                ? 'bg-white dark:bg-bg-secondary border-neonRed shadow-neon scale-[1.02]' 
-                : 'bg-white dark:bg-bg-surface border-border-color dark:border-border-color hover:border-neonRed/50 hover:bg-gray-50 dark:hover:bg-bg-secondary/50'
+                ? 'bg-bg-surface dark:bg-bg-secondary border-neonRed shadow-neon scale-[1.02]' 
+                : 'bg-bg-surface dark:bg-bg-tertiary border-border-color hover:border-neonRed/50 hover:bg-bg-contrast-02 dark:hover:bg-bg-secondary/50'
             } group relative overflow-hidden`}
           >
             {/* Left accent bar - always visible */}
@@ -792,8 +792,8 @@ export default function AccountPage() {
             onClick={() => setActiveTab('profile')}
             className={`cursor-pointer transition-all duration-300 p-3 sm:p-6 border-2 ${
               activeTab === 'profile' 
-                ? 'bg-white dark:bg-bg-secondary border-neonRed shadow-neon scale-[1.02]' 
-                : 'bg-white dark:bg-bg-surface border-border-color dark:border-border-color hover:border-neonRed/50 hover:bg-gray-50 dark:hover:bg-bg-secondary/50'
+                ? 'bg-bg-surface dark:bg-bg-secondary border-neonRed shadow-neon scale-[1.02]' 
+                : 'bg-bg-surface dark:bg-bg-tertiary border-border-color hover:border-neonRed/50 hover:bg-bg-contrast-02 dark:hover:bg-bg-secondary/50'
             } group relative overflow-hidden`}
           >
             {/* Left accent bar - always visible */}
@@ -986,7 +986,7 @@ export default function AccountPage() {
         )}
 
         {/* Tab Content */}
-        <div className="bg-white dark:bg-bg-secondary border border-border-color p-6 sm:p-8">
+        <div className="bg-bg-surface dark:bg-bg-secondary border border-border-color p-6 sm:p-8">
           {/* Orders Tab Content */}
           {activeTab === 'orders' && (
             <>
@@ -1160,7 +1160,7 @@ export default function AccountPage() {
         <div className="mt-8">
           <button
             onClick={logout}
-            className="w-full bg-bg-surface border border-border-color hover:border-neonRed/50 text-text-secondary hover:text-text-primary font-bold uppercase tracking-widest text-xs py-3 px-6 sm:px-8 transition-all"
+            className="w-full bg-neonRed hover:bg-neonRed/90 text-white font-black uppercase tracking-widest text-xs py-3 px-6 sm:px-8 transition-all shadow-neon hover:shadow-neon-lg"
           >
             Sign Out
           </button>
