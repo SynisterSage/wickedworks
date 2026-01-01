@@ -47,23 +47,23 @@ export const HeroView: React.FC<HeroViewProps> = ({ onExplore, onFullCollection 
           </p>
           
           <div className="flex flex-col sm:flex-row gap-6 justify-center w-full max-w-lg px-4">
-            {/* Primary Button */}
-            <button 
-              onClick={onExplore}
-              className="relative flex-1 overflow-hidden bg-neonRed text-white px-10 py-6 font-black uppercase tracking-[0.4em] text-[10px] md:text-[11px] shadow-neon hover:shadow-neon-strong hover:-translate-y-1 transition-all duration-500 flex items-center justify-center active:scale-95 group/explore"
-            >
-              <span className="relative z-10">
-                Explore Archives 
-              </span>
-              <div className="absolute top-0 -left-[100%] w-[150%] h-full bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-[-30deg] transition-all duration-1000 ease-in-out group-hover/explore:left-[100%]" />
-            </button>
-            
-            {/* Secondary Button */}
+            {/* Primary Button (Full Collection) */}
             <button 
               onClick={onFullCollection}
-              className="relative flex-1 overflow-hidden bg-bg-contrast-03 backdrop-blur-xl border border-border-color text-text-primary px-10 py-6 font-black uppercase tracking-[0.4em] text-[10px] md:text-[11px] hover:bg-bg-contrast-10 hover:border-text-primary/20 hover:-translate-y-1 transition-all duration-500 active:scale-95 flex items-center justify-center group/collection"
+              className="relative flex-1 overflow-hidden bg-neonRed text-white px-10 py-6 font-black uppercase tracking-[0.4em] text-[10px] md:text-[11px] shadow-neon hover:shadow-neon-strong hover:-translate-y-1 transition-all duration-500 flex items-center justify-center active:scale-95 group/collection"
             >
-              <span className="relative z-10">Full Collection</span>
+              <span className="relative z-10">
+                Full Collection
+              </span>
+              <div className="absolute top-0 -left-[100%] w-[150%] h-full bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-[-30deg] transition-all duration-1000 ease-in-out group-hover/collection:left-[100%]" />
+            </button>
+            
+            {/* Secondary Button (Explore Archives) */}
+            <button 
+              onClick={onExplore}
+              className="relative flex-1 overflow-hidden bg-bg-contrast-03 backdrop-blur-xl border border-border-color text-text-primary px-10 py-6 font-black uppercase tracking-[0.4em] text-[10px] md:text-[11px] hover:bg-bg-contrast-10 hover:border-text-primary/20 hover:-translate-y-1 transition-all duration-500 active:scale-95 flex items-center justify-center group/explore"
+            >
+              <span className="relative z-10">Explore Archives</span>
               <div className="absolute bottom-0 left-0 w-full h-[2px] bg-neonRed scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left shadow-neon" />
             </button>
           </div>

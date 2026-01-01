@@ -170,7 +170,7 @@ export const MobileMenuView: React.FC<MobileMenuViewProps> = ({
         </div>
 
         {/* Technical Footer Section */}
-        <div className="bg-black/60 border-t border-border-color px-8 py-12 md:py-16 relative z-10">
+        <div className="bg-bg-tertiary border-t border-border-color px-8 py-12 md:py-16 relative z-10">
           <div className="container mx-auto max-w-lg">
             <div className="grid grid-cols-2 gap-12">
               <div className="space-y-6">

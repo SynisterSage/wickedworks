@@ -134,14 +134,14 @@ export const ProductDetailPageView: React.FC<ProductDetailPageViewProps> = ({
             <div className="space-y-8">
               {product.options.map((opt) => (
                 <div key={opt.name}>
-                  <h4 className="text-[10px] font-black uppercase tracking-widest text-text-primary/20 mb-4 border-l-2 border-neonRed pl-3 italic">{opt.name}</h4>
-                  <div className="grid grid-cols-4 gap-2">
+                  <h4 className="text-[10px] font-black uppercase tracking-widest text-text-primary/20 mb-3 border-l-2 border-neonRed pl-3 italic">{opt.name}</h4>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 md:gap-3">
                     {opt.values.map((val) => (
                       <button
                         key={val}
                         disabled={isVaulted}
                         onClick={() => onSelectOption(opt.name, val)}
-                        className={`py-3 text-[10px] font-black uppercase tracking-widest border transition-all duration-300 transform ${
+                        className={`min-h-[44px] w-full px-3 py-3 text-[10px] font-black uppercase tracking-widest border transition-all duration-300 transform rounded-none ${
                           selectedOptions[opt.name] === val
                             ? 'bg-neonRed border-neonRed text-white shadow-neon'
                             : `bg-bg-contrast-02 border-border-color text-text-primary/40 hover:border-neonRed/40 hover:text-text-primary/80 hover:-translate-y-0.5`

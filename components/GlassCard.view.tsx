@@ -73,22 +73,25 @@ export const GlassCardView: React.FC<GlassCardViewProps> = ({ product, onViewPro
       </div>
 
       {/* Content Area */}
-      <div className="p-6 flex-1 flex flex-col bg-bg-secondary/90 backdrop-blur-3xl relative z-10 shadow-[0_-10px_30px_-10px_rgba(0,0,0,0.5)]">
-        <div className="mb-6">
-          <h3 className="text-xl font-black uppercase tracking-tighter text-text-primary group-hover:text-neonRed transition-colors leading-[0.9] italic">
+      <div className="p-5 md:p-6 flex-1 flex flex-col bg-bg-secondary/90 backdrop-blur-3xl relative z-10 shadow-[0_-10px_30px_-10px_rgba(0,0,0,0.5)]">
+        <div className="mb-4">
+          <h3
+            className="text-lg md:text-xl font-black uppercase tracking-tight text-text-primary group-hover:text-neonRed transition-colors leading-[1.05] italic"
+            style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
+            >
             {product.title}
           </h3>
         </div>
         
-        <div className="flex justify-between items-center border-t border-border-color pt-5 mt-auto">
-          <div className="flex flex-col">
-            <span className="text-[7px] font-black text-text-secondary/20 uppercase tracking-[0.4em] mb-1 italic">REFERENCE</span>
-            <span className="text-[9px] font-mono font-bold text-text-secondary/30 uppercase tracking-[0.2em]">
+        <div className="flex justify-between items-end border-t border-border-color pt-4 mt-auto gap-4">
+          <div className="min-w-0">
+            <span className="block text-[7px] font-black text-text-secondary/30 uppercase tracking-[0.32em] mb-1 italic">Reference</span>
+            <span className="block text-[9px] font-mono font-bold text-text-secondary/60 uppercase tracking-[0.12em] truncate">
               #{product.handle}
             </span>
           </div>
           
-          <div className="text-text-secondary/20 group-hover:text-neonRed transition-colors">
+          <div className="text-text-secondary/30 group-hover:text-neonRed transition-colors flex-shrink-0">
             <Icons.ArrowRight />
           </div>
         </div>

@@ -28,6 +28,11 @@ const ShopPageContainer: React.FC<ShopPageContainerProps> = ({
   const [priceMin, setPriceMin] = useState<string>('');
   const [priceMax, setPriceMax] = useState<string>('');
 
+  const applyPriceFilters = useCallback((min: string, max: string) => {
+    setPriceMin(min);
+    setPriceMax(max);
+  }, []);
+
   // Hydrate from query params
   useEffect(() => {
     const categoryParam = searchParams.get('category');
@@ -110,7 +115,7 @@ const ShopPageContainer: React.FC<ShopPageContainerProps> = ({
       
       filterOptions={{ categories: CATEGORIES, sizes: SIZES, colors: colorOptions, price: facets?.priceRange }}
       selectedFilters={{ categories: selectedCategories, sizes: selectedSizes, colors: selectedColors, priceMin, priceMax }}
-      onPriceChange={{ setMin: setPriceMin, setMax: setPriceMax }}
+      onPriceApply={applyPriceFilters}
       onFilterChange={handleFilterChange}
       clearFiltersAndSearch={handleClearFiltersAndSearch}
       

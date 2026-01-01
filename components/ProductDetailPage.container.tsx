@@ -60,7 +60,7 @@ const ProductDetailPageContainer: React.FC<ProductDetailPageContainerProps> = ({
   };
 
   if (loading) return (
-    <div className="pt-40 flex flex-col items-center justify-center space-y-4">
+    <div className="min-h-screen flex flex-col items-center justify-center space-y-6 bg-bg-primary px-6">
       <div className="w-12 h-1 bg-neonRed animate-width-pulse"></div>
       <div className="text-neonRed font-black uppercase tracking-[0.4em] text-[10px] animate-pulse">Establishing Uplink...</div>
     </div>

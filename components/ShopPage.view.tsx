@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Icons } from '../constants';
 import GlassCardContainer from './GlassCard.container';
 import { useNavigate } from 'react-router-dom';
@@ -29,7 +29,7 @@ interface ShopPageViewProps {
     priceMin: string;
     priceMax: string;
   };
-  onPriceChange: { setMin: (v: string) => void; setMax: (v: string) => void };
+  onPriceApply: (min: string, max: string) => void;
   onFilterChange: (type: 'categories' | 'sizes' | 'colors', value: string) => void;
   clearFiltersAndSearch: () => void;
   
@@ -40,10 +40,19 @@ interface ShopPageViewProps {
 export const ShopPageView: React.FC<ShopPageViewProps> = ({
   products, onViewProduct, onToggleSave, savedHandles,
   searchQuery, onSearchChange, sort, onSortChange,
-  filterOptions, selectedFilters, onPriceChange, onFilterChange, clearFiltersAndSearch,
+  filterOptions, selectedFilters, onPriceApply, onFilterChange, clearFiltersAndSearch,
   isFilterOpen, setIsFilterOpen,
 }) => {
   const navigate = useNavigate();
+
+  const [priceDraftMin, setPriceDraftMin] = useState(selectedFilters.priceMin || '');
+  const [priceDraftMax, setPriceDraftMax] = useState(selectedFilters.priceMax || '');
+
+  // Sync drafts when applied filters change (e.g., reset)
+  useEffect(() => {
+    setPriceDraftMin(selectedFilters.priceMin || '');
+    setPriceDraftMax(selectedFilters.priceMax || '');
+  }, [selectedFilters.priceMin, selectedFilters.priceMax]);
   
   const FilterGroup = ({ title, options, current, type, scrollable }: { title: string, options: string[], current: string[], type: 'categories' | 'sizes' | 'colors', scrollable?: boolean }) => (
     <div className="mb-12">
@@ -97,44 +106,60 @@ export const ShopPageView: React.FC<ShopPageViewProps> = ({
     </div>
   );
 
-  const PriceGroup = () => {
-    const range = filterOptions.price;
-    return (
-      <div className="mb-12">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-1.5 h-4 bg-neonRed shadow-neon"></div>
-          <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-text-primary italic">Price Range</h4>
-        </div>
-          <div className="flex items-center gap-4">
-          <div className="flex-1">
+  const range = filterOptions.price;
+  const priceGroupContent = (
+    <div className="mb-12">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-1.5 h-4 bg-neonRed shadow-neon"></div>
+        <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-text-primary italic">Price Range</h4>
+      </div>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          onPriceApply(priceDraftMin.trim(), priceDraftMax.trim());
+        }}
+        className="space-y-4"
+      >
+        <div className="flex items-end gap-3">
+          <div className="flex-1 min-w-0">
             <label className="block text-[9px] uppercase tracking-[0.3em] text-text-primary/40 mb-2">Min</label>
             <input
-              type="number"
-              inputMode="numeric"
-              min={0}
+              type="text"
+              inputMode="decimal"
+              pattern="[0-9]*"
+              minLength={0}
+              autoComplete="off"
               placeholder={range ? Math.floor(range.min).toString() : '0'}
-              value={selectedFilters.priceMin}
-              onChange={(e) => onPriceChange.setMin(e.target.value)}
-              className="w-full bg-bg-secondary border border-border-color text-[11px] font-black uppercase tracking-[0.2em] text-text-primary px-3 py-2 focus:outline-none focus:border-neonRed/50"
+              value={priceDraftMin}
+              onChange={(e) => setPriceDraftMin(e.target.value)}
+              className="w-full bg-bg-secondary border border-border-color text-[11px] font-black uppercase tracking-[0.2em] text-text-primary px-3 py-2 focus:outline-none focus:border-neonRed/50 transition-colors"
             />
           </div>
-          <span className="text-text-primary/30 flex items-center justify-center min-w-[20px]">—</span>
-          <div className="flex-1">
+          <div className="flex items-center justify-center h-[34px] text-text-primary/40 pb-0.5">—</div>
+          <div className="flex-1 min-w-0">
             <label className="block text-[9px] uppercase tracking-[0.3em] text-text-primary/40 mb-2">Max</label>
             <input
-              type="number"
-              inputMode="numeric"
-              min={0}
+              type="text"
+              inputMode="decimal"
+              pattern="[0-9]*"
+              minLength={0}
+              autoComplete="off"
               placeholder={range ? Math.ceil(range.max).toString() : '500'}
-              value={selectedFilters.priceMax}
-              onChange={(e) => onPriceChange.setMax(e.target.value)}
-              className="w-full bg-bg-secondary border border-border-color text-[11px] font-black uppercase tracking-[0.2em] text-text-primary px-3 py-2 focus:outline-none focus:border-neonRed/50"
+              value={priceDraftMax}
+              onChange={(e) => setPriceDraftMax(e.target.value)}
+              className="w-full bg-bg-secondary border border-border-color text-[11px] font-black uppercase tracking-[0.2em] text-text-primary px-3 py-2 focus:outline-none focus:border-neonRed/50 transition-colors"
             />
           </div>
         </div>
-      </div>
-    );
-  };
+        <button 
+          type="submit" 
+          className="w-full py-3 text-[10px] font-black uppercase tracking-[0.3em] bg-bg-secondary border border-border-color text-text-primary hover:bg-neonRed hover:border-neonRed hover:text-white transition-all duration-300 shadow-sm hover:shadow-neon active:scale-[0.98]"
+        >
+          Apply Range
+        </button>
+      </form>
+    </div>
+  );
 
   return (
     <div className="pt-12 md:pt-32 pb-24 min-h-screen bg-bg-primary">
@@ -160,7 +185,7 @@ export const ShopPageView: React.FC<ShopPageViewProps> = ({
             <FilterGroup title="CLASS_CATEGORY" options={filterOptions.categories} current={selectedFilters.categories} type="categories" />
             <FilterGroup title="SPEC_SIZE" options={filterOptions.sizes} current={selectedFilters.sizes} type="sizes" scrollable />
             <FilterGroup title="COLOR_PROTOCOL" options={filterOptions.colors} current={selectedFilters.colors} type="colors" scrollable />
-            <PriceGroup />
+            {priceGroupContent}
           </aside>
 
           <main className="lg:col-span-9">
@@ -209,15 +234,15 @@ export const ShopPageView: React.FC<ShopPageViewProps> = ({
       </div>
 
       <div className={`fixed inset-0 z-[250] transition-all duration-500 lg:hidden ${isFilterOpen ? 'pointer-events-auto' : 'pointer-events-none'}`}>
-        <div className={`absolute inset-0 bg-black/90 backdrop-blur-3xl transition-opacity duration-500 ${isFilterOpen ? 'opacity-100' : 'opacity-0'}`} onClick={() => setIsFilterOpen(false)} />
-        <aside className={`absolute bottom-0 left-0 w-full h-[85vh] bg-bg-secondary border-t border-border-color transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] transform shadow-2xl p-8 overflow-y-auto custom-scrollbar ${isFilterOpen ? 'translate-y-0' : 'translate-y-full'}`}>
+        <div className={`absolute inset-0 bg-white/70 dark:bg-black/90 backdrop-blur-3xl transition-opacity duration-500 ${isFilterOpen ? 'opacity-100' : 'opacity-0'}`} onClick={() => setIsFilterOpen(false)} />
+        <aside className={`absolute bottom-0 left-0 w-full h-[85vh] bg-bg-primary dark:bg-bg-secondary border-t border-border-color transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] transform shadow-2xl p-8 overflow-y-auto custom-scrollbar ${isFilterOpen ? 'translate-y-0' : 'translate-y-full'}`}>
           <div className="w-12 h-1 bg-text-primary/10 rounded-full mx-auto mb-10" />
           <div className="flex justify-between items-center mb-12"><h3 className="text-3xl font-black uppercase tracking-tighter text-text-primary italic">Configuration.</h3><button onClick={() => setIsFilterOpen(false)} className="text-text-primary/40 p-2"><Icons.Close /></button></div>
           <FilterGroup title="CLASS_CATEGORY" options={filterOptions.categories} current={selectedFilters.categories} type="categories" />
           <FilterGroup title="SPEC_SIZE" options={filterOptions.sizes} current={selectedFilters.sizes} type="sizes" scrollable />
           <FilterGroup title="COLOR_PROTOCOL" options={filterOptions.colors} current={selectedFilters.colors} type="colors" scrollable />
-          <PriceGroup />
-          <div className="sticky bottom-0 left-0 right-0 pt-4 bg-gradient-to-t from-bg-secondary via-bg-secondary to-transparent"><button onClick={() => setIsFilterOpen(false)} className="w-full bg-neonRed text-white py-6 font-black uppercase tracking-[0.4em] text-xs shadow-neon active:scale-95">Apply Settings</button></div>
+          {priceGroupContent}
+          <div className="sticky bottom-0 left-0 right-0 pt-4 bg-gradient-to-t from-bg-primary/95 via-bg-primary/80 to-transparent dark:from-bg-secondary dark:via-bg-secondary"><button onClick={() => setIsFilterOpen(false)} className="w-full bg-neonRed text-white py-6 font-black uppercase tracking-[0.4em] text-xs shadow-neon active:scale-95">Apply Settings</button></div>
         </aside>
       </div>
     </div>

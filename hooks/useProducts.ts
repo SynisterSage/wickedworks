@@ -107,6 +107,13 @@ export function useProducts(filters: ProductFilters) {
     const priceMax = typeof filters.priceMax === 'number' ? filters.priceMax : undefined;
 
     if (!allProducts) return [];
+    const intentKeywords: Record<string, string[]> = {
+      commute: ['commute', 'urban', 'city', 'everyday', 'daily'],
+      travel: ['travel', 'carry', 'pack', 'flight', 'airport'],
+      cold: ['cold', 'winter', 'thermal', 'insulated', 'heated'],
+      run: ['run', 'runner', 'jog', 'sprint'],
+      training: ['train', 'gym', 'workout'],
+    };
     
     const base = allProducts.filter(product => {
       const searchMatch = !lowercasedQuery || 
@@ -153,7 +160,17 @@ export function useProducts(filters: ProductFilters) {
         colorOption && colorOption.values.some(val => selectedColors.includes(val))
       );
 
-      const intentMatch = !intent || tagsLower.some(t => t.includes(intent));
+      const matchesIntent = (intentValue: string) => {
+        const keywords = intentKeywords[intentValue] || [intentValue];
+        return keywords.some(k =>
+          tagsLower.some(t => t.includes(k)) ||
+          titleLower.includes(k) ||
+          catLower.includes(k) ||
+          (product.description || '').toLowerCase().includes(k)
+        );
+      };
+
+      const intentMatch = !intent || matchesIntent(intent);
 
       const priceAmount = Number(product.priceRange?.minVariantPrice?.amount || 0);
       const priceMatch = (
