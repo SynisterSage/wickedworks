@@ -27,10 +27,19 @@ const transformImage = (url?: string) => {
  * for consistent timezone handling across client deployments.
  */
 export function mapArchiveMetafields(node: any) {
-  // Metafields come as a direct array from Storefront API, not edges/nodes
-  const metafields = node.metafields || [];
-  const releaseDate = metafields.find((m: any) => m.namespace === 'release' && m.key === 'release_date')?.value || null;
-  const vaultedValue = metafields.find((m: any) => m.namespace === 'release' && m.key === 'vaulted')?.value;
+  // Metafields can come as array, edges/nodes, or be null/undefined
+  let metafields: any[] = [];
+  
+  if (Array.isArray(node.metafields)) {
+    metafields = node.metafields;
+  } else if (node.metafields?.edges) {
+    metafields = node.metafields.edges.map((e: any) => e.node);
+  } else if (node.metafields?.nodes) {
+    metafields = node.metafields.nodes;
+  }
+  
+  const releaseDate = metafields.find((m: any) => m?.namespace === 'release' && m?.key === 'release_date')?.value || null;
+  const vaultedValue = metafields.find((m: any) => m?.namespace === 'release' && m?.key === 'vaulted')?.value;
   
   const isVaulted = vaultedValue === 'true' || vaultedValue === true;
   const isUpcoming = !!(releaseDate && new Date(releaseDate).getTime() > Date.now());
