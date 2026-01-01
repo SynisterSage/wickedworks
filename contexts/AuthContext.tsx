@@ -9,6 +9,7 @@ import {
   initiateLogin as authInitiateLogin,
   logout as authLogout,
 } from '../lib/auth';
+import { handleError, notifySuccess } from '../lib/toast';
 
 interface AuthContextType {
   customer: Customer | null;
@@ -57,7 +58,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           localStorage.setItem('customer', JSON.stringify(customerData));
         }
       } catch (error) {
-        console.error('Failed to load auth state:', error);
+        handleError('[AuthContext] Failed to load auth state', error, false);
         localStorage.removeItem('auth_tokens');
         localStorage.removeItem('customer');
       } finally {
@@ -76,6 +77,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setCustomer(null);
     setTokens(null);
     authLogout();
+    notifySuccess('Logged out successfully');
   };
 
   const refreshCustomer = async () => {
@@ -86,7 +88,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setCustomer(customerData);
       localStorage.setItem('customer', JSON.stringify(customerData));
     } catch (error) {
-      console.error('Failed to refresh customer:', error);
+      handleError('[AuthContext] Failed to refresh customer', error);
     }
   };
 

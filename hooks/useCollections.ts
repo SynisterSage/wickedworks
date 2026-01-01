@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { COLLECTIONS_QUERY } from '../lib/shopify/queries';
 import { shopifyFetch } from '../lib/shopify/client';
 import { mapCollectionFromGraphQL } from '../adapters/shopifyAdapter';
+import { handleError } from '../lib/toast';
 
 const USE_MOCKS = import.meta.env.VITE_USE_MOCKS === 'true';
 
@@ -68,8 +69,8 @@ export const useCollections = () => {
           setCollections(mappedCollections);
         }
       } catch (err) {
-        console.error('Error fetching collections:', err);
-        setError(err instanceof Error ? err : new Error('Failed to fetch collections'));
+        const message = handleError('[useCollections]', err);
+        setError(new Error(message));
       } finally {
         setLoading(false);
       }

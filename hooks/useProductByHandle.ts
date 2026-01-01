@@ -5,6 +5,7 @@ import { MOCK_PRODUCTS } from '../constants';
 import { mapProductFromGraphQL } from '../adapters/shopifyAdapter';
 import { shopifyFetch } from '../lib/shopify/client';
 import { PRODUCT_BY_HANDLE_QUERY } from '../lib/shopify/queries';
+import { handleError } from '../lib/toast';
 
 const USE_MOCKS = import.meta.env.VITE_USE_MOCKS === 'true';
 
@@ -49,11 +50,12 @@ export function useProductByHandle(handle: string | null) {
             setSelectedVariantGid(mapped.variants[0]?.gid || null);
           } else {
             setError('Product not found');
+            handleError('[useProductByHandle]', 'Product not found');
           }
         }
       } catch (err) {
-        console.error('[useProductByHandle] Error:', err);
-        setError(err instanceof Error ? err.message : 'Failed to load product');
+        const message = handleError('[useProductByHandle]', err);
+        setError(message);
       } finally {
         setLoading(false);
       }

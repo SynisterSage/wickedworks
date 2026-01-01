@@ -5,6 +5,7 @@ import { MOCK_PRODUCTS } from '../constants';
 import { mapProductFromGraphQL } from '../adapters/shopifyAdapter';
 import { shopifyFetch, extractNodes } from '../lib/shopify/client';
 import { PRODUCTS_QUERY } from '../lib/shopify/queries';
+import { handleError } from '../lib/toast';
 
 const USE_MOCKS = import.meta.env.VITE_USE_MOCKS === 'true';
 
@@ -47,8 +48,8 @@ export function useArchives() {
           setProducts(nodes.map(mapProductFromGraphQL));
         }
       } catch (err) {
-        console.error('[useArchives] Error:', err);
-        setError(err instanceof Error ? err.message : 'Failed to load archives');
+        const message = handleError('[useArchives]', err);
+        setError(message);
         // Fallback to mocks on error
         setProducts(MOCK_PRODUCTS.map(mapProductFromGraphQL));
       } finally {

@@ -5,6 +5,7 @@ import { MOCK_PRODUCTS } from '../constants';
 import { mapProductFromGraphQL } from '../adapters/shopifyAdapter';
 import { shopifyFetch, extractNodes } from '../lib/shopify/client';
 import { PRODUCTS_QUERY } from '../lib/shopify/queries';
+import { handleError } from '../lib/toast';
 
 const USE_MOCKS = import.meta.env.VITE_USE_MOCKS === 'true';
 
@@ -36,14 +37,14 @@ export function useNewReleases(limit: number = 4) {
           });
 
           if (response.errors) {
-            console.error('[useNewReleases] GraphQL errors:', response.errors);
+            handleError('[useNewReleases]', response.errors[0]?.message || 'Failed to fetch releases');
           }
 
           const nodes = extractNodes(response.data?.products);
           setProducts(nodes.map(mapProductFromGraphQL));
         }
       } catch (err) {
-        console.error('[useNewReleases] Error:', err);
+        handleError('[useNewReleases]', err);
         // Fallback to mocks on error
         setProducts(MOCK_PRODUCTS.filter(p => p.isNew).slice(0, limit).map(mapProductFromGraphQL));
       } finally {

@@ -23,7 +23,7 @@ export const SearchPanelView: React.FC<SearchPanelViewProps> = ({
       }`}
     >
       <div 
-        className="absolute inset-0 bg-bg-primary/95 backdrop-blur-3xl transition-opacity duration-300" 
+        className="absolute inset-0 bg-bg-primary/90 backdrop-blur-2xl transition-opacity duration-300" 
         onClick={onClose} 
       />
 

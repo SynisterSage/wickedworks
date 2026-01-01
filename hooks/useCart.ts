@@ -8,6 +8,7 @@ import {
   CART_LINES_REMOVE_MUTATION,
   CART_QUERY,
 } from '../lib/shopify/queries';
+import { handleError, notifySuccess, notifyError } from '../lib/toast';
 
 const USE_MOCKS = import.meta.env.VITE_USE_MOCKS === 'true';
 
@@ -111,7 +112,7 @@ export function useCart() {
             setCheckoutUrl(result.cart.checkoutUrl);
           }
         } catch (err) {
-          console.error('[useCart] Failed to recreate cart:', err);
+          handleError('[useCart] Failed to recreate cart', err);
         } finally {
           setIsLoading(false);
         }
@@ -194,7 +195,8 @@ export function useCart() {
         const result = response.data?.[mutationKey];
 
         if (result?.userErrors?.length > 0) {
-          console.error('[useCart] Shopify errors:', result.userErrors);
+          const errorMsg = result.userErrors.map((e: any) => e.message).join(', ');
+          handleError('[useCart] Shopify errors', errorMsg);
           return null;
         }
 
@@ -204,12 +206,14 @@ export function useCart() {
           setCheckoutUrl(cart.checkoutUrl);
           const items = mapShopifyCartToItems(cart);
           setCartItems(items);
+          if (action === 'add') notifySuccess('Item added to cart');
+          if (action === 'remove') notifySuccess('Item removed from cart');
           return cart;
         }
 
         return null;
       } catch (err) {
-        console.error('[useCart] Sync error:', err);
+        handleError('[useCart] Sync error', err);
         return null;
       } finally {
         setIsLoading(false);

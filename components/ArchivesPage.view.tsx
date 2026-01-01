@@ -90,33 +90,39 @@ export const ArchivesPageView: React.FC<ArchivesPageViewProps> = ({
         {/* Vaulted Section */}
         <div>
           <div className="flex items-center gap-6 mb-16">
-            <div className="h-6 w-1.5 bg-text-primary/20"></div>
+            <div className="h-6 w-1.5 bg-gray-500"></div>
             <h2 className="text-4xl md:text-7xl font-black uppercase tracking-tighter text-text-primary/20 leading-none italic">
               Legacy <span className="text-text-primary/5">Vault.</span>
             </h2>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {vaulted.map(product => (
-              <a 
-                key={product.gid} 
-                href={`/products/${product.handle}`} 
-                rel="noopener"
-                onClick={(e) => { e.preventDefault(); navigate(`/shop/${product.handle}`); }}
-                className="group relative aspect-[4/5] bg-bg-primary border border-border-color grayscale saturate-0 opacity-60 hover:opacity-100 transition-all duration-700 overflow-hidden"
-              >
-                <img src={product.featuredImage.url} alt={product.title} className="absolute inset-0 w-full h-full object-cover brightness-[0.4] transition-all group-hover:scale-105" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rotate-[-15deg] border-2 border-white/10 px-4 py-1">
-                  <span className="text-2xl font-black uppercase text-white/10 tracking-[0.2em]">VAULTED</span>
-                </div>
-                <div className="absolute inset-0 p-6 flex flex-col justify-end">
-                   <span className="text-[8px] font-black text-white/20 tracking-[0.4em] uppercase mb-1">REF // {product.handle}</span>
-                   <h3 className="text-xl font-black uppercase tracking-tighter text-white/80 group-hover:text-neonRed transition-colors italic leading-none">{product.title}</h3>
-                </div>
-              </a>
-            ))}
-          </div>
+          {vaulted.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+              {vaulted.map(product => (
+                <a 
+                  key={product.gid} 
+                  href={`/products/${product.handle}`} 
+                  rel="noopener"
+                  onClick={(e) => { e.preventDefault(); navigate(`/shop/${product.handle}`); }}
+                  className="group relative aspect-[4/5] bg-bg-primary border border-border-color grayscale saturate-0 opacity-60 hover:opacity-100 transition-all duration-700 overflow-hidden"
+                >
+                  <img src={product.featuredImage.url} alt={product.title} className="absolute inset-0 w-full h-full object-cover brightness-[0.4] transition-all group-hover:scale-105" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rotate-[-15deg] border-2 border-white/10 px-4 py-1">
+                    <span className="text-2xl font-black uppercase text-white/10 tracking-[0.2em]">VAULTED</span>
+                  </div>
+                  <div className="absolute inset-0 p-6 flex flex-col justify-end">
+                     <span className="text-[8px] font-black text-white/20 tracking-[0.4em] uppercase mb-1">REF // {product.handle}</span>
+                     <h3 className="text-xl font-black uppercase tracking-tighter text-white/80 group-hover:text-neonRed transition-colors italic leading-none">{product.title}</h3>
+                  </div>
+                </a>
+              ))}
+            </div>
+          ) : (
+            <div className="p-20 border border-border-color bg-bg-contrast-01 text-center">
+              <span className="text-[10px] font-black text-text-primary/10 uppercase tracking-[0.5em]">No Pending Vaults Detected</span>
+            </div>
+          )}
         </div>
 
         {/* Archive Manifesto Footer */}

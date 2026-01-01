@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import HeroContainer from './components/Hero.container';
 import ProductGridContainer from './components/ProductGrid.container';
 import ProductDetailPageContainer from './components/ProductDetailPage.container';
@@ -232,6 +234,20 @@ const App: React.FC = () => {
         <MobileMenuContainer 
           isOpen={isMobileMenuOpen} 
           onClose={() => setIsMobileMenuOpen(false)} 
+        />
+
+        {/* Toast notifications */}
+        <ToastContainer 
+          position="bottom-right"
+          autoClose={4000}
+          hideProgressBar={false}
+          newestOnTop={true}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="dark"
         />
       </div>
     </div>

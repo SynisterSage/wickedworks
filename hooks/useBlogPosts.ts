@@ -4,6 +4,7 @@ import { BlogPost } from '../types';
 import { mapArticleFromGraphQL } from '../adapters/shopifyAdapter';
 import { shopifyFetch, extractNodes } from '../lib/shopify/client';
 import { BLOG_POSTS_QUERY } from '../lib/shopify/queries';
+import { handleError } from '../lib/toast';
 
 const USE_MOCKS = import.meta.env.VITE_USE_MOCKS === 'true';
 const BLOG_HANDLE = 'news'; // Default blog handle - update if your Shopify blog has a different handle
@@ -39,8 +40,8 @@ export function useBlogPosts() {
           setPosts(nodes.map(mapArticleFromGraphQL));
         }
       } catch (err) {
-        console.error('[useBlogPosts] Error:', err);
-        setError(err instanceof Error ? err.message : 'Failed to load blog posts');
+        const message = handleError('[useBlogPosts]', err);
+        setError(message);
         // Fallback to empty on error
         setPosts([]);
       } finally {

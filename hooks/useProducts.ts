@@ -5,6 +5,7 @@ import { MOCK_PRODUCTS } from '../constants';
 import { mapProductFromGraphQL } from '../adapters/shopifyAdapter';
 import { shopifyFetch, extractNodes } from '../lib/shopify/client';
 import { PRODUCTS_QUERY } from '../lib/shopify/queries';
+import { handleError, notifyError } from '../lib/toast';
 
 interface ProductFilters {
   searchQuery?: string;
@@ -82,8 +83,8 @@ export function useProducts(filters: ProductFilters) {
           hydrateFacets(products);
         }
       } catch (err) {
-        console.error('[useProducts] Error fetching products:', err);
-        setError(err instanceof Error ? err.message : 'Failed to load products');
+        const message = handleError('[useProducts] Error fetching products', err);
+        setError(message);
         // Fallback to mocks on error
         const products = MOCK_PRODUCTS.map(mapProductFromGraphQL);
         setAllProducts(products);
