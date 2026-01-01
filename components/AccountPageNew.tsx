@@ -213,7 +213,7 @@ const AddressCard: React.FC<AddressCardProps> = ({ address, isDefault, onEdit, o
   const [showConfirm, setShowConfirm] = useState(false);
 
   return (
-    <div className={`border border-border-color transition-all duration-500 bg-bg-surface dark:bg-bg-secondary ${isOpen ? 'bg-bg-contrast-02 dark:bg-bg-tertiary' : 'hover:border-text-primary/20'}`}>
+    <div className={`border border-white/5 transition-all duration-500 bg-bg-surface dark:bg-bg-secondary ${isOpen ? 'bg-bg-contrast-02 dark:bg-bg-tertiary' : 'hover:border-neonRed/30'}`}>
       <div onClick={() => setIsOpen(!isOpen)} className="p-5 cursor-pointer flex flex-row items-center justify-between gap-4">
         <div className="flex flex-col gap-1 min-w-0 flex-1">
           <span className="text-[9px] font-mono font-black text-text-secondary uppercase tracking-widest">
@@ -299,8 +299,8 @@ const AddressCard: React.FC<AddressCardProps> = ({ address, isDefault, onEdit, o
 
       {/* Delete Confirmation Modal */}
       {showConfirm && (
-        <div className="fixed inset-0 bg-white/40 dark:bg-black/90 backdrop-blur-3xl z-[9999] flex items-center justify-center p-4 pointer-events-auto">
-          <div className="bg-white dark:bg-bg-secondary border border-border-color max-w-sm w-full p-6 sm:p-8 space-y-6 shadow-2xl relative z-[10000]">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-3xl z-[9999] flex items-center justify-center p-4 pointer-events-auto">
+          <div className="bg-bg-surface dark:bg-bg-secondary border border-white/10 max-w-sm w-full p-6 sm:p-8 space-y-6 shadow-2xl relative z-[10000]">
             <div>
               <h3 className="text-sm font-black text-text-primary uppercase tracking-widest mb-2">Delete Address?</h3>
               <p className="text-[10px] text-text-secondary">This action cannot be undone.</p>
@@ -363,8 +363,8 @@ const AddressForm: React.FC<AddressFormProps> = ({ address, onClose, onSave, isS
   };
 
   return (
-    <div className="fixed inset-0 bg-white/40 dark:bg-black/90 backdrop-blur-3xl z-[9999] flex items-center justify-center p-4 pointer-events-auto">
-      <div className="bg-white dark:bg-bg-secondary border border-border-color max-w-md w-full p-6 sm:p-8 space-y-6 max-h-[90vh] overflow-y-auto shadow-2xl relative z-[10000]">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-3xl z-[9999] flex items-center justify-center p-4 pointer-events-auto">
+      <div className="bg-bg-surface dark:bg-bg-secondary border border-white/10 max-w-md w-full p-6 sm:p-8 space-y-6 max-h-[90vh] overflow-y-auto shadow-2xl relative z-[10000]">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-1.5 h-4 bg-neonRed shadow-neon"></div>
@@ -582,6 +582,37 @@ const AddressForm: React.FC<AddressFormProps> = ({ address, onClose, onSave, isS
   );
 };
 
+// NotificationToggle Component
+interface NotificationToggleProps {
+  label: string;
+  description: string;
+  enabled: boolean;
+  onToggle: () => void;
+}
+
+const NotificationToggle: React.FC<NotificationToggleProps> = ({ label, description, enabled, onToggle }) => {
+  return (
+    <div className="flex items-start justify-between gap-4 group py-4 border-b border-border-color last:border-0">
+      <div className="flex-1 min-w-0 pr-4">
+        <h4 className={`text-sm font-black uppercase tracking-tight mb-1 transition-colors italic ${enabled ? 'text-text-primary' : 'text-text-secondary'}`}>
+          {label}
+        </h4>
+        <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest leading-relaxed">
+          {description}
+        </p>
+      </div>
+      <button 
+        onClick={onToggle} 
+        className="relative inline-flex items-center cursor-pointer shrink-0 mt-1"
+      >
+        <div className={`w-12 h-6 transition-all duration-300 border ${enabled ? 'bg-neonRed/10 border-neonRed shadow-neon' : 'bg-bg-contrast-05 border-border-color'}`}>
+          <div className={`absolute top-1 bottom-1 w-4 transition-all duration-300 ${enabled ? 'left-7 bg-neonRed' : 'left-1 bg-text-secondary'}`} />
+        </div>
+      </button>
+    </div>
+  );
+};
+
 export default function AccountPage() {
   const navigate = useNavigate();
   const { customer, isAuthenticated, isLoading, login, logout, refreshCustomer } = useAuth();
@@ -597,6 +628,17 @@ export default function AccountPage() {
   const [savingProfile, setSavingProfile] = useState(false);
   const [profileForm, setProfileForm] = useState({ firstName: '', lastName: '', phoneNumber: '' });
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  
+  // Notification preferences state
+  const [notifications, setNotifications] = useState({
+    archiveDrops: true,
+    orderStatus: true,
+    theDispatch: true,
+  });
+
+  const toggleNotification = (key: keyof typeof notifications) => {
+    setNotifications(prev => ({ ...prev, [key]: !prev[key] }));
+  };
 
   // Fetch orders when authenticated
   useEffect(() => {
@@ -738,10 +780,10 @@ export default function AccountPage() {
           {/* Orders Tab */}
           <div 
             onClick={() => setActiveTab('orders')}
-            className={`cursor-pointer transition-all duration-300 p-3 sm:p-6 border-2 ${
+            className={`cursor-pointer transition-all duration-300 p-3 sm:p-6 ${
               activeTab === 'orders' 
-                ? 'bg-bg-surface dark:bg-bg-secondary border-neonRed shadow-neon scale-[1.02]' 
-                : 'bg-bg-surface dark:bg-bg-tertiary border-border-color hover:border-neonRed/50 hover:bg-bg-contrast-02 dark:hover:bg-bg-secondary/50'
+                ? 'bg-bg-surface dark:bg-bg-secondary border-2 border-neonRed shadow-neon scale-[1.02]' 
+                : 'bg-bg-surface dark:bg-bg-tertiary border border-white/5 hover:border-neonRed/30 hover:bg-bg-contrast-02 dark:hover:bg-bg-secondary/50'
             } group relative overflow-hidden`}
           >
             {/* Left accent bar - always visible */}
@@ -764,10 +806,10 @@ export default function AccountPage() {
           {/* Addresses Tab */}
           <div 
             onClick={() => setActiveTab('addresses')}
-            className={`cursor-pointer transition-all duration-300 p-3 sm:p-6 border-2 ${
+            className={`cursor-pointer transition-all duration-300 p-3 sm:p-6 ${
               activeTab === 'addresses' 
-                ? 'bg-bg-surface dark:bg-bg-secondary border-neonRed shadow-neon scale-[1.02]' 
-                : 'bg-bg-surface dark:bg-bg-tertiary border-border-color hover:border-neonRed/50 hover:bg-bg-contrast-02 dark:hover:bg-bg-secondary/50'
+                ? 'bg-bg-surface dark:bg-bg-secondary border-2 border-neonRed shadow-neon scale-[1.02]' 
+                : 'bg-bg-surface dark:bg-bg-tertiary border border-white/5 hover:border-neonRed/30 hover:bg-bg-contrast-02 dark:hover:bg-bg-secondary/50'
             } group relative overflow-hidden`}
           >
             {/* Left accent bar - always visible */}
@@ -790,10 +832,10 @@ export default function AccountPage() {
           {/* Profile Tab */}
           <div 
             onClick={() => setActiveTab('profile')}
-            className={`cursor-pointer transition-all duration-300 p-3 sm:p-6 border-2 ${
+            className={`cursor-pointer transition-all duration-300 p-3 sm:p-6 ${
               activeTab === 'profile' 
-                ? 'bg-bg-surface dark:bg-bg-secondary border-neonRed shadow-neon scale-[1.02]' 
-                : 'bg-bg-surface dark:bg-bg-tertiary border-border-color hover:border-neonRed/50 hover:bg-bg-contrast-02 dark:hover:bg-bg-secondary/50'
+                ? 'bg-bg-surface dark:bg-bg-secondary border-2 border-neonRed shadow-neon scale-[1.02]' 
+                : 'bg-bg-surface dark:bg-bg-tertiary border border-white/5 hover:border-neonRed/30 hover:bg-bg-contrast-02 dark:hover:bg-bg-secondary/50'
             } group relative overflow-hidden`}
           >
             {/* Left accent bar - always visible */}
@@ -822,8 +864,8 @@ export default function AccountPage() {
 
         {/* Edit Profile Modal */}
         {showEditProfile && (
-          <div className="fixed inset-0 bg-white/40 dark:bg-black/90 backdrop-blur-3xl z-[9999] flex items-center justify-center p-4 pointer-events-auto">
-            <div className="bg-white dark:bg-bg-secondary border border-border-color max-w-md w-full p-6 sm:p-8 space-y-6 shadow-2xl relative z-[10000]">
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-3xl z-[9999] flex items-center justify-center p-4 pointer-events-auto">
+            <div className="bg-bg-surface dark:bg-bg-secondary border border-white/10 max-w-md w-full p-6 sm:p-8 space-y-6 shadow-2xl relative z-[10000]">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-1.5 h-4 bg-neonRed shadow-neon"></div>
@@ -986,7 +1028,7 @@ export default function AccountPage() {
         )}
 
         {/* Tab Content */}
-        <div className="bg-bg-surface dark:bg-bg-secondary border border-border-color p-6 sm:p-8">
+        <div className="bg-bg-surface dark:bg-bg-secondary border border-white/5 p-6 sm:p-8">
           {/* Orders Tab Content */}
           {activeTab === 'orders' && (
             <>
@@ -1151,6 +1193,36 @@ export default function AccountPage() {
                 >
                   Edit Profile
                 </button>
+              </div>
+
+              {/* Notification Preferences Section */}
+              <div className="mt-12 pt-8 border-t border-border-color">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-1.5 h-4 bg-neonRed shadow-neon"></div>
+                  <h3 className="text-sm font-black text-text-primary uppercase tracking-widest italic">
+                    Notification Preferences
+                  </h3>
+                </div>
+                <div className="bg-bg-secondary border border-border-color p-8 space-y-4 shadow-2xl">
+                  <NotificationToggle
+                    label="Archive Drops"
+                    description="Be the first to know about new technical deployments."
+                    enabled={notifications.archiveDrops}
+                    onToggle={() => toggleNotification('archiveDrops')}
+                  />
+                  <NotificationToggle
+                    label="Order Status"
+                    description="Real-time updates on your payload delivery status."
+                    enabled={notifications.orderStatus}
+                    onToggle={() => toggleNotification('orderStatus')}
+                  />
+                  <NotificationToggle
+                    label="The Dispatch"
+                    description="Weekly insights into urban mobility and techwear."
+                    enabled={notifications.theDispatch}
+                    onToggle={() => toggleNotification('theDispatch')}
+                  />
+                </div>
               </div>
             </>
           )}
