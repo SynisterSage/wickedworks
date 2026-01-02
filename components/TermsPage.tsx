@@ -23,20 +23,48 @@ const TermsPage: React.FC = () => {
       content: "We aim for accurate imagery and descriptions; color may vary by display. Inventory can change quickly; we may limit quantities or discontinue items."
     },
     {
-      title: "Returns",
-      content: "Eligible items can be returned within 30 days in original condition with tags. Faulty items are covered under applicable consumer laws. See Returns for workflow details."
+      title: "Shipping & Delivery",
+      content: "Shipping costs are calculated and displayed at checkout based on destination and chosen carrier. We ship via USPS, UPS, or FedEx. Delivery times are estimates and not guaranteed. Risk of loss passes to you when the carrier takes possession. For lost or damaged shipments, contact us immediately with tracking information. International orders may be subject to customs duties or taxes."
     },
     {
-      title: "Privacy, Cookies & Supabase",
-      content: "See our Privacy & Cookies notice for how we process data, including use of Supabase for subscriptions/notification preferences and Resend for email. By using the site you consent to necessary cookies; optional cookies can be controlled in your browser."
+      title: "Returns & Exchanges",
+      content: "Eligible items can be returned within 30 days in original condition with tags attached. Return shipping is the customer's responsibility unless the item was damaged or defective. Refunds are processed within 7-10 business days of receipt and inspection. Faulty items are covered under applicable consumer protection laws."
+    },
+    {
+      title: "Governing Law & Dispute Resolution",
+      content: "These Terms are governed by the laws of [YOUR STATE/COUNTRY]. Any dispute shall be resolved by binding arbitration (with a 30-day opt-out period). For arbitration details or to opt out, contact legal@wickedworks.com within 30 days of your first transaction."
+    },
+    {
+      title: "Age & Eligibility",
+      content: "By using the site, you represent that you are at least 18 years old and capable of entering binding agreements. Minors may only use this site with parental or guardian consent and supervision."
+    },
+    {
+      title: "Warranty & Disclaimer",
+      content: "Products are provided 'AS-IS' without express or implied warranties of merchantability or fitness for a particular purpose. The site and its content are provided 'AS-AVAILABLE'; we do not guarantee uninterrupted access or error-free operation."
+    },
+    {
+      title: "Acceptable Use",
+      content: "You agree not to use Wicked Works for illegal activity, fraud, unauthorized access, scraping, or harassment. You may not post abusive or infringing content or interfere with the site. Violations may result in order cancellation, account suspension, and legal action."
+    },
+    {
+      title: "Right to Refuse Service",
+      content: "We reserve the right to refuse or cancel any order, terminate accounts, or block users for fraudulent activity, violation of these Terms, or conduct that risks our community."
+    },
+    {
+      title: "Limitation of Liability & Indemnification",
+      content: "TO THE MAXIMUM EXTENT PERMITTED BY LAW, OUR TOTAL LIABILITY SHALL NOT EXCEED THE AMOUNT YOU PAID FOR THE PRODUCT (OR $100, WHICHEVER IS GREATER). WE ARE NOT LIABLE FOR INDIRECT, INCIDENTAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES. You indemnify us from claims arising from your breach, misrepresentation, or illegal activity."
+    },
+    {
+      title: "Privacy, Cookies & Data",
+      content: "See our Privacy & Cookies notice for how we process your data, including use of Supabase, Resend, and Shopify. By using the site you consent to necessary cookies; optional cookies can be managed via the consent banner or browser settings."
     },
     {
       title: "Intellectual Property",
       content: "All site content and designs are owned by Wicked Works or licensors. No reproduction or derivative use without written consent."
     },
     {
-      title: "Limitation of Liability",
-      content: "To the extent allowed by law, we are not liable for indirect or consequential damages. Nothing here limits rights you have under mandatory consumer law."
+      title: "Legal Contact & Notices",
+      content: "Email: legal@wickedworks.com · Support: https://support.wickedworks.com · For urgent matters, include your name, order number, and a summary of the issue."
     }
   ];
 

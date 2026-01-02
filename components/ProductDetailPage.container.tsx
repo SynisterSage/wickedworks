@@ -5,6 +5,7 @@ import { useProductByHandle } from '../hooks/useProductByHandle';
 import { ProductDetailPageView } from './ProductDetailPage.view';
 import { Variant, Product } from '../types';
 import { useCollection } from '../hooks/useCollection';
+import { useTrackEvent, useTrackConversion } from '../hooks/useCookies';
 
 interface ProductDetailPageContainerProps {
   onAddToCart: (variant: Variant, product: Product) => void;
@@ -21,19 +22,29 @@ const ProductDetailPageContainer: React.FC<ProductDetailPageContainerProps> = ({
   const navigate = useNavigate();
   const { data, loading, error, selectedVariant, selectVariant } = useProductByHandle(handle || null);
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
+  const trackEvent = useTrackEvent();
+  const trackConversion = useTrackConversion();
 
   // Collection context can be passed via location state if needed
   // const { data: collectionData } = useCollection(...);
 
-  // SEO: Update page title
+  // SEO: Update page title and track page view
   useEffect(() => {
     if (data) {
       document.title = `${data.title} | Wicked Works Technical Archive`;
+      // Track product view
+      trackEvent('view_item', {
+        item_id: data.id,
+        item_name: data.title,
+        item_category: 'product',
+        price: data.priceRange.minVariantPrice.amount,
+        currency: data.priceRange.minVariantPrice.currencyCode,
+      });
     }
     return () => {
       document.title = 'Wicked Works Storefront';
     };
-  }, [data]);
+  }, [data, trackEvent]);
 
   // Initialize options once product data arrives
   useEffect(() => {
@@ -57,6 +68,23 @@ const ProductDetailPageContainer: React.FC<ProductDetailPageContainerProps> = ({
       );
       if (variant) selectVariant(variant.gid);
     }
+  };
+
+  const handleAddToCart = (variant: Variant) => {
+    // Track add to cart event
+    if (data) {
+      trackEvent('add_to_cart', {
+        item_id: data.id,
+        item_name: data.title,
+        price: variant.price.amount,
+        currency: variant.price.currencyCode,
+        quantity: 1,
+      });
+    }
+    // Also track as conversion for marketing
+    trackConversion('AddToCart', parseFloat(variant.price.amount));
+    
+    onAddToCart(variant, data);
   };
 
   if (loading) return (
@@ -91,7 +119,7 @@ const ProductDetailPageContainer: React.FC<ProductDetailPageContainerProps> = ({
       selectedVariant={selectedVariant}
       selectedOptions={selectedOptions}
       onSelectOption={handleSelectOption}
-      onAddToCart={(variant) => onAddToCart(variant, data)}
+      onAddToCart={handleAddToCart}
       isSaved={isSaved}
       onToggleSave={() => onToggleSave(handle)}
       context={null}

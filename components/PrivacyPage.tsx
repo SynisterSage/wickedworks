@@ -11,23 +11,39 @@ const PrivacyPage: React.FC = () => {
     },
     {
       title: "How We Use It",
-      content: "To process and ship orders, provide customer support, remember your preferences, send transactional emails, and (when you opt in) marketing updates and product notifications. We minimize retention and keep only what’s needed for these purposes."
+      content: "To process and ship orders, provide customer support, remember your preferences, send transactional emails, and (with your consent) deliver marketing updates and product notifications. We minimize retention and keep only what’s needed for these purposes."
     },
     {
       title: "Platforms & Sharing",
-      content: "Commerce runs on Shopify; see https://www.shopify.com/legal/privacy. Data we store (subscriptions, notification prefs) lives in Supabase (U.S./EU hosting). Email is sent via Resend. We do not sell your data. Vendors only receive what they need to perform their service."
+      content: "Commerce runs on Shopify; see https://www.shopify.com/legal/privacy. Data we store (subscriptions, notification prefs) lives in Supabase (U.S./EU hosting). Email is delivered via Resend. We do not sell your data; vendors receive only the data necessary to perform their service."
+    },
+    {
+      title: "Relationship with Shopify",
+      content: "Shopify hosts the Service, checkout, customer accounts, and processes payments. Information you submit is transmitted to Shopify and may be shared with Shopify’s affiliates and necessary third parties, including in countries outside your residence. Shopify also powers personalized advertising features; you can learn more or manage your preferences at https://privacy.shopify.com/en."
     },
     {
       title: "Cookies & Tracking",
-      content: "We use essential cookies for security/session, preference cookies (e.g., theme), and performance/analytics. You can control cookies in your browser; blocking some may impact site function."
+      content: "We use essential cookies for security, sessions, and cart persistence (always active). Optional cookies power analytics (Google Analytics) and marketing (Facebook Pixel, LinkedIn Insight). Optional cookies are only enabled after you accept them in the cookie banner, and you can adjust preferences at any time via the banner or your browser settings. Shopify checkout may also set cookies (see Shopify’s policy)."
     },
     {
       title: "Your Rights",
-      content: "Depending on where you live (e.g., GDPR/UK GDPR, CCPA/CPRA, other local laws), you may access, correct, delete, or port your data, and opt out of marketing. To exercise rights or request deletion, contact us via the support portal."
+      content: "Depending on GDPR, UK GDPR, CCPA/CPRA, or other local laws, you may access, correct, delete, or port your data, and opt out of marketing or targeted advertising. To exercise rights, contact privacy@wickedworks.com, visit our support portal, or submit a request using Shopify’s privacy portal (https://privacy.shopify.com/en). We will respond within 30 days, or shorter if required by applicable law."
     },
     {
       title: "Data Security & Retention",
-      content: "We use TLS in transit and vendor security defaults at rest. We retain order records to meet legal/tax requirements; marketing preferences are kept until you opt out or request deletion."
+      content: "We use TLS in transit and vendor security defaults at rest. Order records are retained to meet legal/tax requirements; marketing preferences are kept until you opt out or request deletion. We delete data that is no longer necessary for ongoing services."
+    },
+    {
+      title: "Data Breach Notification",
+      content: "If we become aware of a breach involving your personal data, we will notify you without unreasonable delay, describe the nature of the breach, and share steps we are taking. EU residents will receive notice within 72 hours as required under GDPR."
+    },
+    {
+      title: "Children’s Privacy",
+      content: "We do not knowingly collect information from anyone under 13. If we learn that a child under 13 has provided data without parental consent, we will delete it immediately. Parents or guardians may contact privacy@wickedworks.com to request removal."
+    },
+    {
+      title: "Legal Contact & Data Requests",
+      content: "Email: privacy@wickedworks.com · Legal: legal@wickedworks.com · Support Portal: https://support.wickedworks.com. Include your name, email, order number, and request type so we can process it quickly."
     }
   ];
 

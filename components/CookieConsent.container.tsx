@@ -3,29 +3,44 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CookieConsentView } from './CookieConsent.view';
 import { ROUTES } from '../utils/routeHelpers';
+import { 
+  hasConsentBeenGiven, 
+  acceptAllCookies, 
+  acceptNecessaryOnly,
+  initializeTracking 
+} from '../lib/cookieManager';
 
 const CookieConsentContainer: React.FC = () => {
   const navigate = useNavigate();
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    const consent = localStorage.getItem('ww_cookie_consent');
-    if (!consent) {
+    // Check if user has already given consent
+    if (!hasConsentBeenGiven()) {
+      // Show banner after 1.5 seconds if no consent recorded
       const timer = setTimeout(() => setIsVisible(true), 1500);
       return () => clearTimeout(timer);
+    } else {
+      // Initialize tracking based on stored preferences
+      initializeTracking();
     }
   }, []);
 
-  const handleAction = (type: 'accept' | 'deny') => {
-    localStorage.setItem('ww_cookie_consent', type);
+  const handleAccept = () => {
+    acceptAllCookies();
+    setIsVisible(false);
+  };
+
+  const handleDeny = () => {
+    acceptNecessaryOnly();
     setIsVisible(false);
   };
 
   return (
     <CookieConsentView 
       isVisible={isVisible}
-      onAccept={() => handleAction('accept')}
-      onDeny={() => handleAction('deny')}
+      onAccept={handleAccept}
+      onDeny={handleDeny}
       onReview={() => navigate(ROUTES.PRIVACY)}
     />
   );

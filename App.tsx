@@ -12,7 +12,6 @@ import ArchivesPageContainer from './components/ArchivesPage.container';
 import AccountPageNew from './components/AccountPageNew';
 import SavedPageContainer from './components/SavedPage.container';
 import AboutPage from './components/AboutPage';
-import ReturnsPage from './components/ReturnsPage';
 import SizingPage from './components/SizingPage';
 import ContactPage from './components/ContactPage';
 import PrivacyPage from './components/PrivacyPage';
@@ -35,6 +34,7 @@ import BlogPageContainer from './components/BlogPage.container';
 import BlogPostPageContainer from './components/BlogPostPage.container';
 import AuthCallback from './components/AuthCallback';
 import { AuthProvider } from './contexts/AuthContext';
+import { autoInitializeTracking, trackPageView } from './lib/cookieManager';
 
 const App: React.FC = () => {
   const location = useLocation();
@@ -74,6 +74,16 @@ const App: React.FC = () => {
       return () => clearTimeout(timer);
     }
   }, []);
+
+  // Initialize cookie consent and tracking on app load
+  useEffect(() => {
+    autoInitializeTracking();
+  }, []);
+
+  // Track page views on route change
+  useEffect(() => {
+    trackPageView(location.pathname, document.title);
+  }, [location.pathname]);
 
   // Scroll to top on route change
   useEffect(() => {
@@ -195,9 +205,9 @@ const App: React.FC = () => {
 
             {/* Info Pages */}
             <Route path="/about" element={<AboutPage />} />
-            <Route path="/returns" element={<ReturnsPage />} />
             <Route path="/sizing" element={<SizingPage />} />
             <Route path="/contact" element={<ContactPage />} />
+            <Route path="/returns" element={<ContactPage />} />
             <Route path="/privacy" element={<PrivacyPage />} />
             <Route path="/terms" element={<TermsPage />} />
 

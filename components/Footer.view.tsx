@@ -18,7 +18,7 @@ export const FooterView: React.FC<FooterViewProps> = ({
   const navigate = useNavigate();
   const location = useLocation();
   return (
-    <footer className="bg-bg-tertiary pt-16 pb-8 md:pt-20 md:pb-12 relative z-10 overflow-hidden border-t border-border-color">
+    <footer className="bg-[var(--bg-footer)] pt-16 pb-8 md:pt-20 md:pb-12 relative z-10 overflow-hidden border-t border-border-color">
       {/* Structural Atmospheric Glow - Ultra low opacity */}
       <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-neonRed/[0.01] blur-[140px] rounded-full pointer-events-none"></div>
       
@@ -86,7 +86,6 @@ export const FooterView: React.FC<FooterViewProps> = ({
               <ul className="space-y-5">
                 {[
                   { label: 'About', path: ROUTES.ABOUT }, 
-                  { label: 'Returns', path: ROUTES.RETURNS }, 
                   { label: 'Sizing', path: ROUTES.SIZING }, 
                   { label: 'Contact', path: ROUTES.CONTACT },
                   { label: 'Privacy', path: ROUTES.PRIVACY },
