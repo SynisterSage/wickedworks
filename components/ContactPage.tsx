@@ -29,8 +29,9 @@ const ContactPage: React.FC = () => {
       try {
         console.log('[ContactPage] Fetching last order for customer:', customer.id);
         
-        // Shopify Customer API returns orders in the customer object
-        const lastOrder = customer.orders?.[0];
+        // Orders are not directly on customer type, use the customer context data
+        // For now, we'll just use the customer ID if available
+        const lastOrder = (customer as any).lastOrder;
         if (lastOrder?.id) {
           const orderNumber = lastOrder.name || lastOrder.id.split('/').pop() || '';
           setLastOrderId(orderNumber);
@@ -265,7 +266,7 @@ const ContactPage: React.FC = () => {
                     placeholder="JOHN DOE" 
                     required
                     value={formData.name}
-                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({...formData, name: e.target.value})}
                     name="name"
                   />
                   <InputField 
@@ -274,7 +275,7 @@ const ContactPage: React.FC = () => {
                     type="email"
                     required
                     value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({...formData, email: e.target.value})}
                     name="email"
                   />
                 </div>

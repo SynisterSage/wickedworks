@@ -34,7 +34,7 @@ const ProductDetailPageContainer: React.FC<ProductDetailPageContainerProps> = ({
       document.title = `${data.title} | Wicked Works Technical Archive`;
       // Track product view
       trackEvent('view_item', {
-        item_id: data.id,
+        item_id: data.gid,
         item_name: data.title,
         item_category: 'product',
         price: data.priceRange.minVariantPrice.amount,
@@ -74,17 +74,16 @@ const ProductDetailPageContainer: React.FC<ProductDetailPageContainerProps> = ({
     // Track add to cart event
     if (data) {
       trackEvent('add_to_cart', {
-        item_id: data.id,
+        item_id: data.gid,
         item_name: data.title,
         price: variant.price.amount,
         currency: variant.price.currencyCode,
         quantity: 1,
       });
+      // Also track as conversion for marketing
+      trackConversion('AddToCart', variant.price.amount);
+      onAddToCart(variant, data);
     }
-    // Also track as conversion for marketing
-    trackConversion('AddToCart', parseFloat(variant.price.amount));
-    
-    onAddToCart(variant, data);
   };
 
   if (loading) return (
